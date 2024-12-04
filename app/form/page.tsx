@@ -1,131 +1,241 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import Image from "next/image";
 
 const FormSchema = z.object({
   bug_type: z.string({
-    required_error: "Please select an email to display.",
+    required_error: "Please select an error type.",
   }),
   subject: z.string().min(5, {
-    message: "Cause of the Error must be at least 2 characters.",
+    message: "Subject must be at least 5 characters.",
   }),
-  text: z.string().min(2, {
-    message: "Text must be at least 2 characters.",
+  text: z.string().min(10, {
+    message: "Text must be at least 10 characters.",
+  }).max(160, {
+    message: "Text must not be longer than 160 characters.",
   }),
-  images: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-})
+  image: z.any().optional(),
+});
+
+enum ErrorType {
+  Type1 = "Type1",
+  Type2 = "Type2",
+  Type3 = "Type3",
+  Type4 = "Type4",
+}
 
 export default function InputForm() {
+  // Properly type the files state
+  const [files, setFiles] = useState<File[]>([]);
+  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       subject: "",
       text: "",
-      images: ""
+      bug_type: ErrorType.Type1,
+      image: null
     },
-  })
+  });
 
-  enum errorType {
-    type1,
-    type2,
-    type3,
-    type4
-  }
+//   function ImageToBinary() {
+  
+//     if (file) {
+//       const reader = new FileReader();
+  
+//       // Read the file as an ArrayBuffer (binary data)
+//       reader.onload = function(e) {
+//         const arrayBuffer = e.target.result; 
+//         console.log(arrayBuffer);
+//       };
+  
+//       reader.onerror = function(e) {
+//         console.error("Error reading the file", e);
+//       };
+  
+//       reader.readAsArrayBuffer(file);
+//     } else {
+//       console.log("No file selected");
+//     }
+//   }
+  
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+    const filteredData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => key !== "image")
+      );
+
+    console.log({
+      ...filteredData,
+      files: files
+    });
+
+    form.reset({
+        subject: '',
+        text: '',
+        bug_type: ErrorType.Type1, 
+        image: null, 
+  })
+  setFiles([]);
+}
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFiles(prev => [...prev, selectedFile]);
+      form.setValue("image", selectedFile);
+    }
+  }
+
+  function removeFile(index: number) {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+    if (files.length === 1) {
+      form.setValue("image", null);
+    }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
-        <FormField
-          control={form.control}
-          name="bug_type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Error type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Theme" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="light">{errorType[0]}</SelectItem>
-                  <SelectItem value="dark">{errorType[1]}</SelectItem>
-                  <SelectItem value="system">{errorType[2]}</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="w-full h-screen flex justify-center items-center">
+      <Card className="w-full max-w-2xl mx-4">
+        <CardHeader>
+          <CardTitle>Upload Form</CardTitle>
+          <CardDescription>Upload an image and submit your details.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
                 <FormField
-          control={form.control}
-          name="subject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  control={form.control}
+                  name="bug_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Error type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(ErrorType).map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
-          control={form.control}
-          name="text"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  control={form.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subject</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter subject" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
-          control={form.control}
-          name="images"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
-  )
+                  control={form.control}
+                  name="text"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Text</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter details"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleChange}
+                          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                            id="file_input"
+                        />
+                      </FormControl>
+                      <div className="mt-4 grid grid-cols-3 gap-4">
+                        {files.map((file, index) => (
+                          <div key={`${file.name}-${index}`} className="relative group">
+                            <Image 
+                              src={URL.createObjectURL(file)} 
+                              alt={`Upload preview ${index + 1}`}
+                              width={100} 
+                              height={100} 
+                              className="object-cover rounded-md w-full h-24"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Button type="submit" className="w-full">Submit</Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
