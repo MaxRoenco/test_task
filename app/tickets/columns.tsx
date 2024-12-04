@@ -21,13 +21,14 @@ export type Ticket = {
     id: number
     subject: string
     bug_type: "UI/UX" | "Performance" | "Bug"
-    status: string
+    status: "open" | "in work" | "closed"
 }
 
 export const columns: ColumnDef<Ticket>[] = [
     {
         accessorKey: "subject",
         header: "Subject",
+        size: 70,
     },
     {
         accessorKey: "bug_type",
@@ -62,7 +63,10 @@ export const columns: ColumnDef<Ticket>[] = [
         },
         cell: ({ row }) => {
             const st = String(row.getValue("status"));
-            return <div className="ml-4 text-left">{st}</div>
+            let color : string = "text-red-500"
+            if(st === "closed") color = "text-green-400";
+            else if(st === "in work") color = "text-yellow-400";
+            return <div className={"ml-4 text-left " + color}>{st}</div>
         },
     },
     {
