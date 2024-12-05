@@ -1,4 +1,5 @@
 "use client"
+import Link from 'next/link'
 
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -20,15 +21,18 @@ import {
 export type Ticket = {
     id: number
     subject: string
-    bug_type: "UI/UX" | "Performance" | "Bug"
+    bug_type: "UI" | "Performance" | "Functional"
     status: "open" | "in work" | "closed"
+    text: string
+    created_at: string
+    updated_at: string
+    priority: "high" | "medium" | "low"
 }
 
 export const columns: ColumnDef<Ticket>[] = [
     {
         accessorKey: "subject",
         header: "Subject",
-        size: 70,
     },
     {
         accessorKey: "bug_type",
@@ -70,6 +74,24 @@ export const columns: ColumnDef<Ticket>[] = [
         },
     },
     {
+        accessorKey: "priority",
+        header: "Priority"
+    },
+    {
+        accessorKey: "created_at",
+        header: "Created At",
+        cell: ({ row }) => {
+            return new Date(row.getValue("created_at")).toLocaleDateString("hi-IN");
+        }
+    },
+    {
+        accessorKey: "updated_at",
+        header: "Updated At",
+        cell: ({ row }) => {
+            return new Date(row.getValue("updated_at")).toLocaleDateString("hi-IN");
+        }
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
             const ticket = row.original
@@ -90,8 +112,7 @@ export const columns: ColumnDef<Ticket>[] = [
                             Copy ticket ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>View ticket</DropdownMenuItem>
-                        <DropdownMenuItem>View ticket details</DropdownMenuItem>
+                        <DropdownMenuItem><Link href={"/dev/"+ticket.id}>View ticket details</Link></DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
