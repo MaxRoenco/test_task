@@ -12,23 +12,7 @@ export default function page() {
         <div className='w-4/6 flex flex-col mx-auto my-10'>
             <div className='flex justify-between'>
                 <h1 className='text-4xl font-bold'>My Tickets:</h1>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button>Add Ticket</Button>
-                    </DialogTrigger>
-                    <DialogContent
-                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-                    >
-                        <div
-                            className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
-                            onClick={(e) => e.stopPropagation()} // Prevent clicking on the modal itself from closing it
-                        >
-                            <DialogTitle className="text-xl font-bold mb-4">Add Ticket</DialogTitle>
-                            <InputForm />
-                        </div>
-                    </DialogContent>
-
-                </Dialog>
+                <InputForm />
             </div>
             <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
                 {data.map((e, idx) => (
