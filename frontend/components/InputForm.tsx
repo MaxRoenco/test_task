@@ -168,7 +168,7 @@ export default function InputForm() {
       );
       let bugReportId = await pushBugReport(data);
       console.log(bugReportId)
-      pushAttachment(files, binaryFiles, bugReportId)
+      await pushAttachment(files, binaryFiles, bugReportId)
       
       form.reset({
         subject: '',
@@ -177,7 +177,9 @@ export default function InputForm() {
         image: null,
       });
       setFiles([]);
-      setIsOpen(false); // Close the dialog after successful submission
+      
+      // Use the Dialog.Root's onOpenChange to close the dialog
+      setIsOpen(false);
     } catch (error) {
       console.error('Error processing files:', error);
     }
@@ -206,7 +208,7 @@ export default function InputForm() {
       <Dialog.Portal>
         <Dialog.Overlay 
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsOpen(false)} // Close dialog when clicking outside
+          onClick={() => setIsOpen(false)}
         />
         <Dialog.Content 
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
