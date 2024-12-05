@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+// @ts-ignore
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -28,8 +29,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { fetcher } from "@/lib/api";
 
 const FormSchema = z.object({
   bug_type: z.string({
@@ -53,9 +55,20 @@ enum ErrorType {
 }
 
 export default function InputForm() {
-  // Properly type the files state
   const [files, setFiles] = useState<File[]>([]);
   
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`);
+        console.log("Fetched data:", data);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -82,22 +95,93 @@ export default function InputForm() {
       reader.readAsBinaryString(file);
     });
   }
+
+  //pushBugReport
+
+  async function pushBugReport(filteredData : any){
+    const payload = {
+      data: {
+        text: filteredData.text,
+        bug_type: filteredData.bug_type,
+        subject: filteredData.subject,
+      },
+    };
+      let response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+  
+      if (!response.ok) {
+        const errorDetails = await response.json(); // Parse Strapi's error details
+        console.error("Strapi error response:", errorDetails);
+        throw new Error(`Failed to post data: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      console.log("Successfully submitted data:", result);
+      console.log(result.data.id);
+      return result.data.id;
+  }
+
+  // push attachment
+
+  async function pushAttachment(files: File[], binaryFiles: any[], bugReportId : number) {
+    for (const [index, file] of files.entries()) {
+      // console.log(binaryFiles[index])
+      const payload = {
+        data: {
+          filename: file.name,
+          url: file.type,
+          binaryData: String(binaryFiles[index].binaryData),
+          bug_report: String(bugReportId),
+        },
+      };
+  
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_URL}/attachments`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+  
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          console.error("Strapi error response:", errorDetails);
+          throw new Error(`Failed to post data: ${response.statusText}`);
+        }
+  
+        const result = await response.json();
+        console.log("Successfully submitted data:", result);
+      } catch (error) {
+        console.error("Error submitting file:", file.name, error);
+      }
+    }
+  }
   
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const binaryFiles = await Promise.all(
-        files.map(file => convertImageToBinary(file))
+        files.map(async (file) => {
+          const binaryData = await convertImageToBinary(file);
+          return { ...file, binaryData };
+        })
       );
-  
-      const filteredData = Object.fromEntries(
-        Object.entries(data).filter(([key]) => key !== "image")
-      );
-  
-      console.log({
-        ...filteredData,
-        files: binaryFiles
-      });
+      let bugReportId = await pushBugReport(data);
+      console.log(bugReportId)
+      pushAttachment(files, binaryFiles, bugReportId)
+      
   
       form.reset({
         subject: '',
