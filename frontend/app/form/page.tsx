@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
 import {
   Select,
@@ -67,46 +67,50 @@ export default function InputForm() {
     },
   });
 
-//   function ImageToBinary() {
+  function convertImageToBinary(file : File) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        const binaryString = reader.result;
+        resolve(binaryString);
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
   
-//     if (file) {
-//       const reader = new FileReader();
-  
-//       // Read the file as an ArrayBuffer (binary data)
-//       reader.onload = function(e) {
-//         const arrayBuffer = e.target.result; 
-//         console.log(arrayBuffer);
-//       };
-  
-//       reader.onerror = function(e) {
-//         console.error("Error reading the file", e);
-//       };
-  
-//       reader.readAsArrayBuffer(file);
-//     } else {
-//       console.log("No file selected");
-//     }
-//   }
+      reader.readAsBinaryString(file);
+    });
+  }
   
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    const filteredData = Object.fromEntries(
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const binaryFiles = await Promise.all(
+        files.map(file => convertImageToBinary(file))
+      );
+  
+      const filteredData = Object.fromEntries(
         Object.entries(data).filter(([key]) => key !== "image")
       );
-
-    console.log({
-      ...filteredData,
-      files: files
-    });
-
-    form.reset({
+  
+      console.log({
+        ...filteredData,
+        files: binaryFiles
+      });
+  
+      form.reset({
         subject: '',
         text: '',
-        bug_type: ErrorType.Type1, 
-        image: null, 
-  })
-  setFiles([]);
-}
+        bug_type: ErrorType.Type1,
+        image: null,
+      });
+      setFiles([]);
+    } catch (error) {
+      console.error('Error processing files:', error);
+    }
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0];
@@ -137,7 +141,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="bug_type"
-                  render={({ field }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
                     <FormItem>
                       <FormLabel>Error type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -162,7 +166,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="subject"
-                  render={({ field }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
                     <FormItem>
                       <FormLabel>Subject</FormLabel>
                       <FormControl>
@@ -176,7 +180,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="text"
-                  render={({ field }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
                     <FormItem>
                       <FormLabel>Text</FormLabel>
                       <FormControl>
@@ -194,7 +198,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="image"
-                  render={({ field }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
                     <FormItem>
                       <FormControl>
                         <Input
