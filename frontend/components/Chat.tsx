@@ -63,6 +63,7 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
                     <ChatBubble key={index} variant={msg.variant}>
                         <ChatBubbleAvatar fallback='US' />
                         <ChatBubbleMessage variant={msg.variant}>
+                            {msg.variant === "sent" || <p className='text-xs mb-1'>{user.name}</p>}
                             {msg.text}
                         </ChatBubbleMessage>
                     </ChatBubble>
