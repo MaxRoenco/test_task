@@ -9,7 +9,7 @@ import { ChatInput } from './ui/chat/chat-input';
 import { Button } from './ui/button';
 import { FiCornerDownLeft } from "react-icons/fi";
 
-const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, name: string}}) => {
+const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: number, name: string } }) => {
     const [message, setMessage] = useState('');
     interface Message {
         type: string;
@@ -26,20 +26,20 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
         const socket = new WebSocket('ws://localhost:3001'); // Connect to WebSocket server
 
         socket.onopen = () => {
-            socket.send(JSON.stringify({ type: 'init', user,  ticketId}));
+            socket.send(JSON.stringify({ type: 'init', user, ticketId }));
             console.log("Connected to socket");
         };
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-            if(data.type === 'message') {
+            if (data.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, data]);
             }
         };
 
         socket.onclose = (event) => {
-            ws?.send(JSON.stringify({type: "close", ticketId}));
+            ws?.send(JSON.stringify({ type: "close", ticketId }));
         }
 
         setWs(socket);
@@ -51,29 +51,27 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
 
     const handleSendMessage = () => {
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({type: 'message', text: message, ticketId, user}));
+            ws.send(JSON.stringify({ type: 'message', text: message, ticketId, user }));
             setMessage('');
         }
     };
 
     return (
-        <div>
-            <ChatMessageList>
-                {messages.map((msg, index) => (
-                    <ChatBubble key={index} variant={msg.variant}>
-                        <ChatBubbleAvatar fallback='US' />
-                        <ChatBubbleMessage variant={msg.variant}>
-                            {msg.variant === "sent" || <p className='text-xs mb-1'>{user.name}</p>}
-                            {msg.text}
-                        </ChatBubbleMessage>
-                    </ChatBubble>
-                ))}
+        <>
+            <div className='h-4/6'>
+                <ChatMessageList>
+                    {messages.map((msg, index) => (
+                        <ChatBubble key={index} variant={msg.variant}>
+                            <ChatBubbleAvatar fallback='US' />
+                            <ChatBubbleMessage variant={msg.variant}>
+                                {msg.variant === "sent" || <p className='text-xs mb-1'>{user.name}</p>}
+                                {msg.text}
+                            </ChatBubbleMessage>
+                        </ChatBubble>
+                    ))}
+                </ChatMessageList>
+            </div>
 
-                {/* <ChatBubble variant='received'>
-        <ChatBubbleAvatar fallback='AI' />
-        <ChatBubbleMessage isLoading />
-    </ChatBubble> */}
-            </ChatMessageList>
             <ChatInput
                 placeholder="Type your message here..."
                 className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
@@ -90,7 +88,7 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
                     <FiCornerDownLeft className="size-3.5" />
                 </Button>
             </div>
-        </div>
+        </>
     );
 };
 
