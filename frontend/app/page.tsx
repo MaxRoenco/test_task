@@ -11,7 +11,7 @@ const Page = () => {
           Developer
         </Button>
       </Link>
-      <Link href="/form">
+      <Link href="/dashboard">
         <Button size="lg">
           User
         </Button>

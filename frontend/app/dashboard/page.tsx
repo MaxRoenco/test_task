@@ -18,16 +18,16 @@ export default function page() {
                     </DialogTrigger>
                     <DialogContent
                         className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-                        onPointerDownOutside={(e) => e.preventDefault()} // Allow clicking outside to close
                     >
                         <div
                             className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
-                            onClick={(e) => e.stopPropagation()} // Prevent clicking on the modal from closing it
+                            onClick={(e) => e.stopPropagation()} // Prevent clicking on the modal itself from closing it
                         >
                             <DialogTitle className="text-xl font-bold mb-4">Add Ticket</DialogTitle>
                             <InputForm />
                         </div>
                     </DialogContent>
+
                 </Dialog>
             </div>
             <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
