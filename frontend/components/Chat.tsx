@@ -14,7 +14,7 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
     interface Message {
         type: string;
         id: string;
-        content: string;
+        text: string;
         variant: "sent" | "received";
     }
     const [messages, setMessages] = useState<Message[]>([]);
@@ -51,7 +51,7 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
 
     const handleSendMessage = () => {
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({type: 'message', content: message, ticketId, user}));
+            ws.send(JSON.stringify({type: 'message', text: message, ticketId, user}));
             setMessage('');
         }
     };
@@ -63,7 +63,7 @@ const ChatComponent = ({ticketId, user}:{ticketId: number, user: {id: number, na
                     <ChatBubble key={index} variant={msg.variant}>
                         <ChatBubbleAvatar fallback='US' />
                         <ChatBubbleMessage variant={msg.variant}>
-                            {msg.content}
+                            {msg.text}
                         </ChatBubbleMessage>
                     </ChatBubble>
                 ))}
