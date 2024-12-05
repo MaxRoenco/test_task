@@ -96,4 +96,3 @@ const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: numbe
 };
 
 export default ChatComponent;
-

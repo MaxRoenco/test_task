@@ -1,7 +1,7 @@
 import { Ticket, columns } from "./columns"
 import { DataTable } from "./data-table"
 
-async function getData(): Promise<Ticket[]> {
+export async function getData(): Promise<Ticket[]> {
   // Fetch data from your API here.
   return [
     {
@@ -35,7 +35,6 @@ async function getData(): Promise<Ticket[]> {
       "priority": "low"
     }
   ]
-  
 }
 
 export default async function DemoPage() {
