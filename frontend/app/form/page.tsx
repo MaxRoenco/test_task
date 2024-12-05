@@ -49,10 +49,9 @@ const FormSchema = z.object({
 });
 
 enum ErrorType {
-  Type1 = "Type1",
-  Type2 = "Type2",
-  Type3 = "Type3",
-  Type4 = "Type4",
+  Type1 = "UI",
+  Type2 = "Performance",
+  Type3 = "Functional",
 }
 
 export default function InputForm() {
