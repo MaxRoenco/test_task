@@ -127,7 +127,7 @@ export default function InputForm() {
   }
 
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full flex justify-center items-center">
       <Card className="w-full max-w-2xl mx-4">
         <CardHeader>
           <CardTitle>Upload Form</CardTitle>
@@ -140,7 +140,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="bug_type"
-                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "bug_type"> }) => (
                     <FormItem>
                       <FormLabel>Error type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -179,7 +179,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="text"
-                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "text"> }) => (
                     <FormItem>
                       <FormLabel>Text</FormLabel>
                       <FormControl>
@@ -197,7 +197,7 @@ export default function InputForm() {
                 <FormField
                   control={form.control}
                   name="image"
-                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
+                  render={({ field }: { field: ControllerRenderProps<any, "image"> }) => (
                     <FormItem>
                       <FormControl>
                         <Input
