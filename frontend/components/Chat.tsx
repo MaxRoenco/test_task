@@ -9,6 +9,8 @@ import { ChatInput } from './ui/chat/chat-input';
 import { Button } from './ui/button';
 import { FiCornerDownLeft } from "react-icons/fi";
 
+import { ScrollArea } from "./ui/scroll-area"
+
 const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: number, name: string } }) => {
     const [message, setMessage] = useState('');
     interface Message {
@@ -16,6 +18,8 @@ const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: numbe
         id: string;
         text: string;
         variant: "sent" | "received";
+        user: { id: number, name: string };
+        timestamp: string;
     }
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
@@ -58,31 +62,30 @@ const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: numbe
 
     return (
         <>
-            <div className='h-4/6'>
+            <ScrollArea className='h-4/6'>
                 <ChatMessageList>
                     {messages.map((msg, index) => (
                         <ChatBubble key={index} variant={msg.variant}>
                             <ChatBubbleAvatar fallback='US' />
                             <ChatBubbleMessage variant={msg.variant}>
-                                {msg.variant === "sent" || <p className='text-xs mb-1'>{user.name}</p>}
+                                {msg.variant === "sent" || <p className='text-xs text-bold mb-1'>{msg.user.name}</p>}
                                 {msg.text}
+                                <p className='text-xs'>{new Date(msg.timestamp).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</p>
                             </ChatBubbleMessage>
                         </ChatBubble>
                     ))}
                 </ChatMessageList>
-            </div>
-
-            <ChatInput
-                placeholder="Type your message here..."
-                className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-            />
-            <div className="flex items-center p-3">
+            </ScrollArea>
+            <div className='flex flex-row gap-2 items-center h-1/6'>
+                <ChatInput
+                    placeholder="Type your message here..."
+                    className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                />
                 <Button
                     onClick={handleSendMessage}
                     size="sm"
-                    className="ml-auto"
                 >
                     Send Message
                     <FiCornerDownLeft className="size-3.5" />
