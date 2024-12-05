@@ -61,6 +61,11 @@ export function DataTable<TData, TValue>({
             columnFilters,
             columnVisibility,
         },
+        defaultColumn: {
+            size: 200, //starting column size
+            minSize: 50, //enforced during column resizing
+            maxSize: 500, //enforced during column resizing
+        },
     })
 
     return (
