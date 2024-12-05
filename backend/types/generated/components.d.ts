@@ -1,5 +1,13 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface ImagesImages extends Struct.ComponentSchema {
+  collectionName: 'components_images_images';
+  info: {
+    displayName: 'images';
+  };
+  attributes: {};
+}
+
 export interface SharedMedia extends Struct.ComponentSchema {
   collectionName: 'components_shared_media';
   info: {
@@ -65,6 +73,7 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'images.images': ImagesImages;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
