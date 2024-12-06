@@ -213,6 +213,7 @@ export default function InputForm() {
         <Dialog.Content 
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
         >
+          <Dialog.Title></Dialog.Title>
           <div>
             <h1 className="text-4xl font-bold mb-3">Add a ticket</h1>
             <p className="mb-4 text-gray-400">Upload an image and submit your details.</p>
