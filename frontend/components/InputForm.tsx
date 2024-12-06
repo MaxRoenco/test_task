@@ -42,6 +42,7 @@ const FormSchema = z.object({
   image: z.any().optional(),
 });
 
+// const should be capsed ++ names should be same as values
 enum ErrorType {
   Type1 = "UI",
   Type2 = "Performance",
@@ -59,6 +60,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
+
         const data = await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`);
         console.log("Fetched data:", data);
       } catch (error) {
@@ -95,7 +97,8 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     });
   }
 
-  async function pushBugReport(filteredData: any) {
+  // why it was any??
+  async function pushBugReport(filteredData: {text: string, bug_type: string,subject: string}) {
     const payload = {
       data: {
         text: filteredData.text,
@@ -105,6 +108,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
       },
     };
+    // why let if later do not changing response???
     let response = await fetch(
       `${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`,
       {
@@ -173,6 +177,8 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
           return { ...file, binaryData };
         })
       );
+      // why let if bugreportid not changed later
+
       let bugReportId = await pushBugReport(data);
       console.log(bugReportId)
       await pushAttachment(files, binaryFiles, bugReportId);
@@ -187,6 +193,8 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       setIsOpen(false); // Close the dialog after successful submission
 
       // Call the success callback if provided
+
+      // use here router refresh
       if (onSubmitSuccess) {
         onSubmitSuccess();
       }
@@ -215,16 +223,19 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         <Button>Add Ticket</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
+
         <Dialog.Overlay
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsOpen(false)} // Close dialog when clicking outside
+          onClick={() => setIsOpen(false)} // dialog can be managed without useStates
         />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
         >
-          <Dialog.Title></Dialog.Title>
+          <Dialog.Title>what is this???</Dialog.Title>
           <div>
             <h1 className="text-4xl font-bold mb-3">Add a ticket</h1>
+
+              why here hardcoded colors
             <p className="mb-4 text-gray-400">Upload an image and submit your details.</p>
           </div>
           <Form {...form}>

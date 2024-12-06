@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 
 import { ArrowUpDown } from "lucide-react"
 import { MoreHorizontal } from "lucide-react"
-
+import { cn } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -67,11 +67,12 @@ export const columns: ColumnDef<Bug>[] = [
             )
         },
         cell: ({ row }) => {
-            const st = String(row.getValue("statusBug"));
-            let color : string = "text-red-500"
-            if(st === "closed") color = "text-green-400";
-            else if(st === "in work") color = "text-yellow-400";
-            return <div className={"ml-4 text-left " + color}>{st}</div>
+
+            const st : string = (row.getValue("statusBug")); // why transfer string into string?????
+            let color : string = "text-red-500" // senseless typo
+            if(st === "Closed") color = "text-green-400";
+            else if(st === "In Work") color = "text-yellow-400";
+            return <div className={cn(`ml-4 text-left`,color)}>{st}</div>
         },
     },
     {
@@ -113,7 +114,7 @@ export const columns: ColumnDef<Bug>[] = [
                             Copy ticket ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={"/dev/"+ticket.documentId + "-" + ticket.id}>View ticket details</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/dev/${ticket.documentId}-${ticket.id}`}>View ticket details</Link></DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

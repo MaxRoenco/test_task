@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,7 @@ interface Bug {
     text: string,
     createdAt: string,
     bug_type: string,
+    attachments: any;
 }
 
 export default function BugReportsPage() {
@@ -42,26 +43,30 @@ export default function BugReportsPage() {
         fetchBugReports();
     }, [fetchBugReports])
 
-    function binaryStringToImageSrc(binaryString, mimeType = 'image/png', idx) {
+
+    // images in strapi can be saved much easier!!!
+    function binaryStringToImageSrc(binaryString: string, mimeType = 'image/png', idx:number) {
         if(!binaryString) return `https://picsum.photos/seed/${idx+100}/800`;
         // Create a Uint8Array from the binary string
         const byteArray = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           byteArray[i] = binaryString.charCodeAt(i);
         }
-      
+
         // Create a Blob using the byte array
         const blob = new Blob([byteArray], { type: mimeType });
-      
+
         // Generate an Object URL from the Blob
         return URL.createObjectURL(blob);
       }
-      
+
 
     return (
         <div className='w-4/6 flex flex-col mx-auto my-10'>
             <div className='flex justify-between'>
                 <h1 className='text-4xl font-bold'>My Tickets:</h1>
+
+                <div> Why not router refresh here?????</div>
                 <InputForm onSubmitSuccess={fetchBugReports} />
             </div>
             <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
@@ -71,6 +76,7 @@ export default function BugReportsPage() {
                             <CardContent className="p-0 h-40">
                                 <img
                                     className="w-full h-full object-cover object-center"
+                                    //here will be used src of strapi image
                                     src={e.hasOwnProperty("attachments") && e.attachments.length ? binaryStringToImageSrc(e.attachments[0].binaryData, e.attachments[0].url, idx) : `https://picsum.photos/seed/${idx+100}/800`}
                                     alt="Card image"
                                 />
@@ -79,7 +85,7 @@ export default function BugReportsPage() {
                                 <CardTitle>{e.subject}</CardTitle>
                                 <CardDescription>{e.text}</CardDescription>
                                 <CardDescription>
-                                    {new Date(e.createdAt).toLocaleDateString() + " " + 
+                                    {new Date(e.createdAt).toLocaleDateString() + " " +
                                      new Date(e.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                                 </CardDescription>
                             </CardHeader>
