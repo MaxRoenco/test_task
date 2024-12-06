@@ -1,0 +1,31 @@
+{
+    "kind": "collectionType",
+    "collectionName": "bug_reports",
+    "info": {
+        "singularName": "bug-report",
+        "pluralName": "bug-reports",
+        "displayName": "bug_report",
+        "description": ""
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "text": {
+            "type": "text"
+        },
+        "bug_type": {
+            "type": "string"
+        },
+        "subject": {
+            "type": "string"
+        },
+        "attachments": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::attachment.attachment",
+            "mappedBy": "bug_report"
+        }
+    }
+}
