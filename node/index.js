@@ -8,7 +8,7 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
     const msg = JSON.parse(message.toString());
-    // console.log("MESSAGE:", msg);
+    console.log("MESSAGE:", msg);
     if (msg.type === "init") {
       msg.user["client"] = ws;
       if (channels.has(msg.ticketId)) {
