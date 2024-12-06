@@ -23,9 +23,6 @@
       "relation": "manyToOne",
       "target": "api::bug-report.bug-report",
       "inversedBy": "attachments"
-    },
-    "binaryData": {
-      "type": "text"
     }
   }
 }

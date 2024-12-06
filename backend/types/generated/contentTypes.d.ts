@@ -450,7 +450,6 @@ export interface ApiAttachmentAttachment extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    binaryData: Schema.Attribute.Text;
     bug_report: Schema.Attribute.Relation<
       'manyToOne',
       'api::bug-report.bug-report'
