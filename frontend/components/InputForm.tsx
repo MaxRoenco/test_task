@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+// @ts-ignore
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
 import {

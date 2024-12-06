@@ -47,6 +47,6 @@ async function pushData(url, message, bugReportID) {
   }
 
   let id = "odbuynd1of8diu34x9ptfm4c";
-    // pushData("http://localhost:1337/api/messages", message, 117);
-    getData("http://localhost:1337/api/bug-reports", id);
+    pushData("http://localhost:1337/api/messages", message, 116);
+    // getData("http://localhost:1337/api/bug-reports", id);
 
