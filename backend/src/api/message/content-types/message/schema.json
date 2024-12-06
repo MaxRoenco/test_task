@@ -23,6 +23,12 @@
     },
     "timestamp": {
       "type": "string"
+    },
+    "userId": {
+      "type": "integer"
+    },
+    "userName": {
+      "type": "string"
     }
   }
 }

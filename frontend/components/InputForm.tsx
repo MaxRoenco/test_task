@@ -134,7 +134,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         data: {
           filename: file.name,
           url: file.type,
-          // binaryData: String(binaryFiles[index].binaryData),
+          binaryData: String(binaryFiles[index].binaryData),
           bug_report: String(bugReportId),
         },
       };

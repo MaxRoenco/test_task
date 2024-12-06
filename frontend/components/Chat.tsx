@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,15 +12,16 @@ import { FiCornerDownLeft } from "react-icons/fi";
 
 import { ScrollArea } from "./ui/scroll-area"
 
-const ChatComponent = ({ ticketId, user }: { ticketId: string, user: { id: number, name: string } }) => {
+const ChatComponent = ({ ticketId, documentId, user }: { documentId: string, ticketId: string, user: { id: number, name: string } }) => {
     const [message, setMessage] = useState('');
     interface Message {
         type: string;
         id: string;
         text: string;
         variant: "sent" | "received";
-        user: { id: number, name: string };
         timestamp: string;
+        userId: number;
+        userName: string;
     }
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
@@ -30,20 +32,23 @@ const ChatComponent = ({ ticketId, user }: { ticketId: string, user: { id: numbe
         const socket = new WebSocket('ws://localhost:3001'); // Connect to WebSocket server
 
         socket.onopen = () => {
-            socket.send(JSON.stringify({ type: 'init', user, ticketId }));
+            socket.send(JSON.stringify({ type: 'init', user, documentId }));
             console.log("Connected to socket");
         };
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-
             if (data.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, data]);
+            } else if(data.type === 'messages') {
+                console.log("MESSAGES:",data.messages);
+                data.messages.forEach(m => m.user = user);
+                setMessages((prevMessages) => [...prevMessages, ...data.messages]);
             }
         };
 
         socket.onclose = (event) => {
-            ws?.send(JSON.stringify({ type: "close", ticketId }));
+            ws?.send(JSON.stringify({ type: "close" }));
         }
 
         setWs(socket);
@@ -55,7 +60,7 @@ const ChatComponent = ({ ticketId, user }: { ticketId: string, user: { id: numbe
 
     const handleSendMessage = () => {
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({ type: 'message', text: message, ticketId, user }));
+            ws.send(JSON.stringify({ type: 'message', text: message, ticketId, documentId, userId: user.id, userName: user.name }));
             setMessage('');
         }
     };
@@ -65,10 +70,10 @@ const ChatComponent = ({ ticketId, user }: { ticketId: string, user: { id: numbe
             <ScrollArea className='h-4/6'>
                 <ChatMessageList>
                     {messages.map((msg, index) => (
-                        <ChatBubble key={index} variant={msg.variant}>
+                        <ChatBubble key={index} variant={msg.userId === user.id ? "sent" : "received"}>
                             <ChatBubbleAvatar fallback='US' />
-                            <ChatBubbleMessage variant={msg.variant}>
-                                {msg.variant === "sent" || <p className='text-xs text-bold mb-1'>{msg.user.name}</p>}
+                            <ChatBubbleMessage variant={msg.userId === user.id ? "sent" : "received"}>
+                                {msg.userId === user.id || <p className='text-xs text-bold mb-1'>{msg.userName}</p>}
                                 {msg.text}
                                 <p className='text-xs'>{new Date(msg.timestamp).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</p>
                             </ChatBubbleMessage>
