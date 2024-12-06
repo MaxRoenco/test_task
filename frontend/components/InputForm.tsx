@@ -128,7 +128,7 @@ export default function InputForm() {
         data: {
           filename: file.name,
           url: file.type,
-          binaryData: String(binaryFiles[index].binaryData),
+          // binaryData: String(binaryFiles[index].binaryData),
           bug_report: String(bugReportId),
         },
       };
