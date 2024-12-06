@@ -55,19 +55,23 @@ const ChatPage = ({ params }: { params: { ticketId: string } }) => {
             <DialogTrigger asChild>
               <Button>Show Details</Button>
             </DialogTrigger>
+
+            <DialogHeader>
+              <DialogTitle>{ticketInfo?.subject}</DialogTitle>
+              <DialogDescription className='my-5'>
+                {ticketInfo?.text}
+                <br /><br />
+                <Badge className='mr-1'>{ticketInfo?.bug_type}</Badge>
+                <Badge>{ticketInfo?.priority}</Badge>
+              </DialogDescription>
+              <DialogDescription>
+                {new Date(ticketInfo?.createdAt).toLocaleDateString() + " " + new Date(ticketInfo?.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+              </DialogDescription>
+            </DialogHeader>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{ticketInfo?.subject}</DialogTitle>
-                <DialogDescription className='my-5'>
-                  {ticketInfo?.text}
-                  <br /><br />
-                  <Badge className='mr-1'>{ticketInfo?.bug_type}</Badge>
-                  <Badge>{ticketInfo?.priority}</Badge>
-                </DialogDescription>
-                <DialogDescription>
-                  {new Date(ticketInfo?.createdAt).toLocaleDateString() + " " + new Date(ticketInfo?.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
-                </DialogDescription>
-              </DialogHeader>
+              {(ticketInfo && ticketInfo.hasOwnProperty("attachments")) ? ticketInfo.attachments.map((e, idx) => {
+                return <Image width={30} height={30} src={binaryStringToImageSrc(e.binaryData, e.url, idx)} />;
+              }) : ""}
             </DialogContent>
           </Dialog>
         </CardHeader>
