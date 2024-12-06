@@ -34,12 +34,12 @@ const ChatPage = ({ params }: { params: { ticketId: string } }) => {
   const fetchTicketInfo = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:1337/api/bug-reports/' + ids[0] + "?populate=*");
-
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log(data)
       setTicketInfo(data.data);
     } catch (err) {
       if (err instanceof Error) {
@@ -96,7 +96,7 @@ const ChatPage = ({ params }: { params: { ticketId: string } }) => {
             }) : ""}
             </DialogContent>
           </Dialog>
-          
+
         </CardHeader>
         <ChatComponent ticketId={ids[1]} documentId={ids[0]} user={{ id: 0, name: "developer" }} />
       </Card>
