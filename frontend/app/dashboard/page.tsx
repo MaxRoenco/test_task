@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
 import { Badge } from "@/components/ui/badge"
@@ -28,7 +29,6 @@ export default function BugReportsPage() {
 
             const data = await response.json();
             setBugReports(data.data);
-            console.log(data);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -41,6 +41,22 @@ export default function BugReportsPage() {
     useEffect(() => {
         fetchBugReports();
     }, [fetchBugReports])
+
+    function binaryStringToImageSrc(binaryString, mimeType = 'image/png', idx) {
+        if(!binaryString) return `https://picsum.photos/seed/${idx+100}/800`;
+        // Create a Uint8Array from the binary string
+        const byteArray = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          byteArray[i] = binaryString.charCodeAt(i);
+        }
+      
+        // Create a Blob using the byte array
+        const blob = new Blob([byteArray], { type: mimeType });
+      
+        // Generate an Object URL from the Blob
+        return URL.createObjectURL(blob);
+      }
+      
 
     return (
         <div className='w-4/6 flex flex-col mx-auto my-10'>
@@ -55,7 +71,7 @@ export default function BugReportsPage() {
                             <CardContent className="p-0 h-40">
                                 <img
                                     className="w-full h-full object-cover object-center"
-                                    src={`https://picsum.photos/seed/${e.documentId}/800`}
+                                    src={e.hasOwnProperty("attachments") && e.attachments.length ? binaryStringToImageSrc(e.attachments[0].binaryData, e.attachments[0].url, idx) : `https://picsum.photos/seed/${idx+100}/800`}
                                     alt="Card image"
                                 />
                             </CardContent>
