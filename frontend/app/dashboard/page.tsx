@@ -6,7 +6,7 @@ import InputForm from '@/components/InputForm'
 import { useState, useEffect, useCallback } from 'react'
 
 interface Bug {
-    id: number,
+    documentId: string,
     subject: string,
     text: string,
     createdAt: string,
@@ -49,7 +49,7 @@ export default function BugReportsPage() {
             </div>
             <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
                 {bugReports.length > 0 ? bugReports.map((e, idx) => (
-                    <Link className='overflow-hidden w-[49%]' key={e.id} href={"/user_ticket/" + e.id}>
+                    <Link className='overflow-hidden w-[49%]' key={e.documentId} href={"/user_ticket/" + e.documentId}>
                         <Card className="overflow-hidden w-full">
                             <CardContent className="p-0 h-40">
                                 <img

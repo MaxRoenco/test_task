@@ -1,10 +1,11 @@
+
 const message = {
         text: "Hello, is the problem fixed?",
         timestamp: "2024-12-01T12:40:00Z"
     };
 
 async function pushData(url, message, bugReportID) {
-    try {
+    try{
     const payload = {
         data: {
             text: message.text,
@@ -30,6 +31,7 @@ async function pushData(url, message, bugReportID) {
     }
   }
 
+
   async function getData(url, id) {
     try {
       const response = await fetch(`${url}/${id}?populate=*`);
@@ -47,3 +49,4 @@ async function pushData(url, message, bugReportID) {
   let id = "odbuynd1of8diu34x9ptfm4c";
     // pushData("http://localhost:1337/api/messages", message, 117);
     getData("http://localhost:1337/api/bug-reports", id);
+
