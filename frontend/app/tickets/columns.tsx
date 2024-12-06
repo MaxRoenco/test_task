@@ -18,18 +18,18 @@ import {
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Ticket = {
-    id: number
-    subject: string
-    bug_type: "UI" | "Performance" | "Functional"
-    status: "open" | "in work" | "closed"
-    text: string
-    created_at: string
-    updated_at: string
-    priority: "high" | "medium" | "low"
+export type Bug = {
+    id: number,
+    subject: string,
+    text: string,
+    createdAt: string,
+    updatedAt: string,
+    bug_type: string,
+    statusBug: string,
+    priority: string,
 }
 
-export const columns: ColumnDef<Ticket>[] = [
+export const columns: ColumnDef<Bug>[] = [
     {
         accessorKey: "subject",
         header: "Subject",
@@ -53,7 +53,7 @@ export const columns: ColumnDef<Ticket>[] = [
         },
     },
     {
-        accessorKey: "status",
+        accessorKey: "statusBug",
         header: ({ column }) => {
             return (
                 <Button
@@ -66,7 +66,7 @@ export const columns: ColumnDef<Ticket>[] = [
             )
         },
         cell: ({ row }) => {
-            const st = String(row.getValue("status"));
+            const st = String(row.getValue("statusBug"));
             let color : string = "text-red-500"
             if(st === "closed") color = "text-green-400";
             else if(st === "in work") color = "text-yellow-400";
@@ -78,17 +78,17 @@ export const columns: ColumnDef<Ticket>[] = [
         header: "Priority"
     },
     {
-        accessorKey: "created_at",
+        accessorKey: "createdAt",
         header: "Created At",
         cell: ({ row }) => {
-            return new Date(row.getValue("created_at")).toLocaleDateString("hi-IN");
+            return new Date(row.getValue("createdAt")).toLocaleDateString("hi-IN");
         }
     },
     {
-        accessorKey: "updated_at",
+        accessorKey: "updatedAt",
         header: "Updated At",
         cell: ({ row }) => {
-            return new Date(row.getValue("updated_at")).toLocaleDateString("hi-IN");
+            return new Date(row.getValue("updatedAt")).toLocaleDateString("hi-IN");
         }
     },
     {

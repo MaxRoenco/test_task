@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-// @ts-ignore 
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -48,10 +47,14 @@ enum ErrorType {
   Type3 = "Functional",
 }
 
-export default function InputForm() {
+interface InputFormProps {
+  onSubmitSuccess?: () => void;
+}
+
+export default function InputForm({ onSubmitSuccess }: InputFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -77,26 +80,28 @@ export default function InputForm() {
   async function convertImageToBinary(file: File) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = () => {
         const binaryString = reader.result;
         resolve(binaryString);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Failed to read file'));
       };
-  
+
       reader.readAsBinaryString(file);
     });
   }
 
-  async function pushBugReport(filteredData: any){
+  async function pushBugReport(filteredData: any) {
     const payload = {
       data: {
         text: filteredData.text,
         bug_type: filteredData.bug_type,
         subject: filteredData.subject,
+        priority: ["High", "Medium", "Low"][Math.floor(Math.random()*3)],
+        statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
       },
     };
     let response = await fetch(
@@ -169,8 +174,8 @@ export default function InputForm() {
       );
       let bugReportId = await pushBugReport(data);
       console.log(bugReportId)
-      pushAttachment(files, binaryFiles, bugReportId)
-      
+      await pushAttachment(files, binaryFiles, bugReportId);
+
       form.reset({
         subject: '',
         text: '',
@@ -179,11 +184,15 @@ export default function InputForm() {
       });
       setFiles([]);
       setIsOpen(false); // Close the dialog after successful submission
+
+      // Call the success callback if provided
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
     } catch (error) {
       console.error('Error processing files:', error);
     }
   }
-
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -205,11 +214,11 @@ export default function InputForm() {
         <Button>Add Ticket</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay 
+        <Dialog.Overlay
           className="fixed inset-0 bg-black bg-opacity-50"
           onClick={() => setIsOpen(false)} // Close dialog when clicking outside
         />
-        <Dialog.Content 
+        <Dialog.Content
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
         >
           <Dialog.Title></Dialog.Title>
@@ -294,11 +303,11 @@ export default function InputForm() {
                       <div className="mt-4 grid grid-cols-3 gap-4">
                         {files.map((file, index) => (
                           <div key={`${file.name}-${index}`} className="relative group">
-                            <Image 
-                              src={URL.createObjectURL(file)} 
+                            <Image
+                              src={URL.createObjectURL(file)}
                               alt={`Upload preview ${index + 1}`}
-                              width={100} 
-                              height={100} 
+                              width={100}
+                              height={100}
                               className="object-cover rounded-md w-full h-24"
                             />
                             <Button
@@ -321,9 +330,9 @@ export default function InputForm() {
             </form>
           </Form>
           <Dialog.Close asChild>
-            <Button 
-              type="button" 
-              variant="ghost" 
+            <Button
+              type="button"
+              variant="ghost"
               className="absolute top-4 right-4"
             >
               ×
