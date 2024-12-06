@@ -54,7 +54,7 @@ export default function BugReportsPage() {
                             <CardContent className="p-0 h-40">
                                 <img
                                     className="w-full h-full object-cover object-center"
-                                    src={`https://picsum.photos/seed/${e.id}/800`}
+                                    src={`https://picsum.photos/seed/${e.documentId}/800`}
                                     alt="Card image"
                                 />
                             </CardContent>
