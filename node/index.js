@@ -11,24 +11,30 @@ wss.on('connection', (ws) => {
     console.log("MESSAGE:", msg);
     if (msg.type === "init") {
       msg.user["client"] = ws;
-      if (channels.has(msg.ticketId)) {
-        channels.get(msg.ticketId).push(msg.user);
+      if (channels.has(msg.documentId)) {
+        channels.get(msg.documentId).push(msg.user);
       } else {
-        channels.set(msg.ticketId, [msg.user]);
+        channels.set(msg.documentId, [msg.user]);
       }
       ws.user = msg.user;
-      //TODO: send old messages to the new connecting client
+      getData("http://localhost:1337/api/bug-reports", msg.documentId, ws);
+
+
     } else if (msg.type === "message") {
-      const clients = channels.get(msg.ticketId);
-      const timeStamp = new Date().toISOString();
-      msg.timestamp = timeStamp;
-      msg.id = Math.floor(Math.random()*1000000000);
-      clients.forEach(o => {
-        msg.variant = o.client === ws || o.client.user.id === msg.user.id ? "sent" : "received";
-        o.client.send(JSON.stringify(msg));
-      })
-      console.log(msg);
-      //TODO: append this to the messages in the server
+      const clients = channels.get(msg.documentId);
+      if (clients) {
+        const timeStamp = new Date().toISOString();
+        msg.timestamp = timeStamp;
+        msg.id = Math.floor(Math.random() * 1000000000);
+        clients.forEach(o => {
+          o.client.send(JSON.stringify(msg));
+        })
+        // console.log(msg);
+        pushData("http://localhost:1337/api/messages", msg, parseInt(msg.ticketId))
+        // pushData("http://localhost:1337/api/messages", );
+        //TODO: append this to the messages in the server
+      }
+
     } else if (msg.type === "close") {
       let clients = channels.get(msg.ticketId).filter(o => o.client !== ws);
       if (clients.length > 0) {
@@ -45,3 +51,48 @@ wss.on('connection', (ws) => {
 });
 
 console.log('WebSocket server is running on ws://localhost:3001');
+
+
+async function pushData(url, message, id) {
+  try {
+    const payload = {
+      data: {
+        text: message.text,
+        bug_report: id,
+        timestamp: message.timestamp,
+        userId: message.userId,
+        userName: message.userName,
+      },
+    };
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+async function getData(url, id, client) {
+  try {
+    const newUrl = `${url}/${id}?populate=*`;
+    const response = await fetch(`${url}/${id}?populate=*`);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+    const json = await response.json();
+    json.data.type = "messages";
+    client.send(JSON.stringify(json.data));
+
+  } catch (error) {
+    console.error(error.message);
+  }
+}

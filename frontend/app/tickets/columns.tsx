@@ -27,6 +27,7 @@ export type Bug = {
     bug_type: string,
     statusBug: string,
     priority: string,
+    documentId: string,
 }
 
 export const columns: ColumnDef<Bug>[] = [
@@ -107,12 +108,12 @@ export const columns: ColumnDef<Bug>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(String(ticket.id))}
+                            onClick={() => navigator.clipboard.writeText(ticket.documentId + "-" + ticket.id)}
                         >
                             Copy ticket ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={"/dev/"+ticket.id}>View ticket details</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={"/dev/"+ticket.documentId + "-" + ticket.id}>View ticket details</Link></DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
