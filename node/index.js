@@ -84,6 +84,7 @@ async function pushData(url, message, id) {
 async function getData(url, id, client) {
   try {
     const newUrl = `${url}/${id}?populate=*`;
+    console.log(newUrl)
     const response = await fetch(`${url}/${id}?populate=*`);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
