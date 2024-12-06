@@ -1,30 +1,23 @@
-const messages = [
-    {
-        "id": 1,
-        "user": {
-            "id": 1,
-            "name": "Nick"
-        },
-        "text": "Hello, is the problem fixed?",
-        "timestamp": "2024-12-01T12:40:00Z"
-    },
-    {
-        "id": 2,
-        "user": {
-            "id": 2,
-            "name": "Alice Johnson",
-            "role": "Frontend Developer"
-        },
-        "text": "We're looking into this issue and will update shortly.",
-        "timestamp": "2024-12-01T14:00:00Z"
-    }
-]
+const message = {
+        text: "Hello, is the problem fixed?",
+        timestamp: "2024-12-01T12:40:00Z"
+    };
 
-async function pushData(url, data) {
+async function pushData(url, message, bugReportID) {
     try {
-      const response = await fetch(url, {
+    const payload = {
+        data: {
+            text: message.text,
+            bug_report: bugReportID,
+            timestamp: message.timestamp,
+        },
+        };
+      const response = await fetch(url,       {
         method: "POST",
-        body: data.stringify(),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
@@ -37,9 +30,9 @@ async function pushData(url, data) {
     }
   }
 
-  async function getData(url) {
+  async function getData(url, id) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(`${url}/${id}?populate=*`);
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
@@ -51,7 +44,6 @@ async function pushData(url, data) {
     }
   }
 
-  messages.forEach( message => {
-    pushData("http://localhost:1337/api/messages", message);
-    getData("http://localhost:1337/api/messages");
-  })
+  let id = "odbuynd1of8diu34x9ptfm4c";
+    // pushData("http://localhost:1337/api/messages", message, 117);
+    getData("http://localhost:1337/api/bug-reports", id);
