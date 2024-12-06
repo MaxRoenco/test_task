@@ -7,7 +7,7 @@ const ChatPage = ({ params }: { params: { ticketId: string } }) => {
       <Card className='w-6/12 h-4/6 p-3'>
         <h1 className="text-3xl font-bold my-3">Ticket #{params.ticketId}</h1>
         <hr />
-        <ChatComponent ticketId={parseInt(params.ticketId)} user={{ id: 1, name: "user" }} />
+        <ChatComponent ticketId={params.ticketId} user={{ id: 1, name: "user" }} />
       </Card>
     </div>
   );

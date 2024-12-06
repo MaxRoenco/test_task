@@ -11,7 +11,7 @@ import { FiCornerDownLeft } from "react-icons/fi";
 
 import { ScrollArea } from "./ui/scroll-area"
 
-const ChatComponent = ({ ticketId, user }: { ticketId: number, user: { id: number, name: string } }) => {
+const ChatComponent = ({ ticketId, user }: { ticketId: string, user: { id: number, name: string } }) => {
     const [message, setMessage] = useState('');
     interface Message {
         type: string;
