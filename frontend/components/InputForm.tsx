@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+// @ts-ignore 
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -168,7 +169,7 @@ export default function InputForm() {
       );
       let bugReportId = await pushBugReport(data);
       console.log(bugReportId)
-      await pushAttachment(files, binaryFiles, bugReportId)
+      pushAttachment(files, binaryFiles, bugReportId)
       
       form.reset({
         subject: '',
@@ -177,9 +178,7 @@ export default function InputForm() {
         image: null,
       });
       setFiles([]);
-      
-      // Use the Dialog.Root's onOpenChange to close the dialog
-      setIsOpen(false);
+      setIsOpen(false); // Close the dialog after successful submission
     } catch (error) {
       console.error('Error processing files:', error);
     }
@@ -208,7 +207,7 @@ export default function InputForm() {
       <Dialog.Portal>
         <Dialog.Overlay 
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsOpen(false)}
+          onClick={() => setIsOpen(false)} // Close dialog when clicking outside
         />
         <Dialog.Content 
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
