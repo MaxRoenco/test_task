@@ -26,6 +26,18 @@
             "relation": "oneToMany",
             "target": "api::attachment.attachment",
             "mappedBy": "bug_report"
+        },
+        "messages": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::message.message",
+            "mappedBy": "bug_report"
+        },
+        "statusBug": {
+            "type": "string"
+        },
+        "priority": {
+            "type": "string"
         }
     }
 }
