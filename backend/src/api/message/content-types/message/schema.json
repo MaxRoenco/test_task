@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "message"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "text": {
+      "type": "text"
+    },
+    "bug_report": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::bug-report.bug-report",
+      "inversedBy": "messages"
+    }
+  }
+}
