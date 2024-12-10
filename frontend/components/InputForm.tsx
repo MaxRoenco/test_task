@@ -56,18 +56,6 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`);
-        console.log("Fetched data:", data);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -102,7 +90,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     const formData = new FormData();
     formData.append('files', file);
     try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/upload`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/upload`, {
         method: 'POST',
         body: formData
       })
@@ -124,7 +112,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       },
     };
     try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/ticket-users`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +144,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       },
     };
     let response = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`,
+      `${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports`,
       {
         method: "POST",
         headers: {
@@ -191,7 +179,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
 
   //     try {
   //       const response = await fetch(
-  //         `${process.env.NEXT_PUBLIC_STRAPI_URL}/attachments`,
+  //         `${process.env.NEXT_PUBLIC_STRAPI_URL_API}/attachments`,
   //         {
   //           method: "POST",
   //           headers: {
