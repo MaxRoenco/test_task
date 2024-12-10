@@ -56,18 +56,6 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/bug-reports`);
-        console.log("Fetched data:", data);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
