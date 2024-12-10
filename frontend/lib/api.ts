@@ -11,9 +11,6 @@ export async function fetcher(url: string, options = {}) {
       if (error instanceof Error) {
         console.error(`Error fetching data from ${url}:`, error.message);
         throw error;
-      } else {
-        console.error(`Unknown error occurred while fetching data from ${url}:`, error);
-        throw new Error('Unknown error occurred.');
       }
     }
   }

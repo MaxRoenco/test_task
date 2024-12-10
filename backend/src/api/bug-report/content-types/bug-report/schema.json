@@ -21,12 +21,6 @@
     "subject": {
       "type": "string"
     },
-    "attachments": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::attachment.attachment",
-      "mappedBy": "bug_report"
-    },
     "messages": {
       "type": "relation",
       "relation": "oneToMany",
@@ -38,6 +32,20 @@
     },
     "priority": {
       "type": "string"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "ticket_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ticket-user.ticket-user",
+      "inversedBy": "bug_reports"
     }
   }
 }

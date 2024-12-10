@@ -78,24 +78,71 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     },
   });
 
-  async function convertImageToBinary(file: File) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+  // async function convertImageToBinary(file: File) {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
 
-      reader.onload = () => {
-        const binaryString = reader.result;
-        resolve(binaryString);
-      };
+  //     reader.onload = () => {
+  //       const binaryString = reader.result;
+  //       resolve(binaryString);
+  //     };
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'));
-      };
+  //     reader.onerror = () => {
+  //       reject(new Error('Failed to read file'));
+  //     };
 
-      reader.readAsBinaryString(file);
-    });
+  //     reader.readAsBinaryString(file);
+  //   });
+  // }
+  async function uploadImage(file : File){
+    if (!file) {
+      console.error('No file provided');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('files', file);
+    try{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/upload`, {
+        method: 'POST',
+        body: formData
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to upload image: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('Uploaded image successfully:', data);
+      return data[0]?.id || null;
+    } catch(error:any){
+      console.log(`Error: ${error}`);
+    }
+  }
+
+  async function pushUser(name : string, bugReportId : number){
+    const payload = {
+      data: {
+        name: name,
+      },
+    };
+    try{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/ticket-users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to upload user: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('Uploaded user successfully:', data);
+    } catch (error : any){
+      console.log(`Error: ${error}`);
+    }
   }
 
   async function pushBugReport(filteredData: any) {
+    console.log(files);
     const payload = {
       data: {
         text: filteredData.text,
@@ -103,6 +150,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         subject: filteredData.subject,
         priority: ["High", "Medium", "Low"][Math.floor(Math.random()*3)],
         statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
+        images: filteredData.images,
       },
     };
     let response = await fetch(
@@ -128,54 +176,67 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     return result.data.id;
   }
 
-  async function pushAttachment(files: File[], binaryFiles: any[], bugReportId: number) {
-    for (const [index, file] of files.entries()) {
-      const payload = {
-        data: {
-          filename: file.name,
-          url: file.type,
-          binaryData: String(binaryFiles[index].binaryData),
-          bug_report: String(bugReportId),
-        },
-      };
+  // async function pushAttachment(files: File[], bugReportId: number) {
+  //   for (const [index, file] of files.entries()) {
+  //     const payload = {
+  //       data: {
+  //         filename: file.name,
+  //         url: file.type,
+  //         // binaryData: String(binaryFiles[index].binaryData),
+  //         bug_report: String(bugReportId),
+  //       },
+  //     };
 
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_URL}/attachments`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+  //     try {
+  //       const response = await fetch(
+  //         `${process.env.NEXT_PUBLIC_STRAPI_URL}/attachments`,
+  //         {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(payload),
+  //         }
+  //       );
 
-        if (!response.ok) {
-          const errorDetails = await response.json();
-          console.error("Strapi error response:", errorDetails);
-          throw new Error(`Failed to post data: ${response.statusText}`);
-        }
+  //       if (!response.ok) {
+  //         const errorDetails = await response.json();
+  //         console.error("Strapi error response:", errorDetails);
+  //         throw new Error(`Failed to post data: ${response.statusText}`);
+  //       }
 
-        const result = await response.json();
-        console.log("Successfully submitted data:", result);
-      } catch (error) {
-        console.error("Error submitting file:", file.name, error);
-      }
-    }
-  }
+  //       const result = await response.json();
+  //       console.log("Successfully submitted data:", result);
+  //     } catch (error) {
+  //       console.error("Error submitting file:", file.name, error);
+  //     }
+  //   }
+  // }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const binaryFiles = await Promise.all(
-        files.map(async (file) => {
-          const binaryData = await convertImageToBinary(file);
-          return { ...file, binaryData };
-        })
-      );
-      let bugReportId = await pushBugReport(data);
+      // const binaryFiles = await Promise.all(
+      //   files.map(async (file) => {
+      //     const binaryData = await convertImageToBinary(file);
+      //     return { ...file, binaryData };
+      //   })
+      // );
+      const uploadedImageIds: number[] = [];
+      for (const file of files) {
+        const imageId = await uploadImage(file);
+        if (imageId !== null) {
+          uploadedImageIds.push(imageId);
+        }
+      }
+      console.log('Uploaded Image IDs:', uploadedImageIds);
+      const bugReportData = {
+        ...data,
+        images: uploadedImageIds, // Assuming your bug_report model has an "images" field
+      };
+      let bugReportId = await pushBugReport(bugReportData);
       console.log(bugReportId)
-      await pushAttachment(files, binaryFiles, bugReportId);
+      pushUser("Max", bugReportId);
+      // await pushAttachment(files, bugReportId);
 
       form.reset({
         subject: '',

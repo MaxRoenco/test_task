@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ticket_users",
+  "info": {
+    "singularName": "ticket-user",
+    "pluralName": "ticket-users",
+    "displayName": "ticketUser",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "bug_reports": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::bug-report.bug-report",
+      "mappedBy": "ticket_user"
+    }
+  }
+}
