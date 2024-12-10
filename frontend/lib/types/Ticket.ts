@@ -26,8 +26,8 @@ export default interface Ticket {
     documentId: string;
     subject: string;
     text: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
     bugType: BugType;
     statusBug: StatusBug;
     priority: Priority;
