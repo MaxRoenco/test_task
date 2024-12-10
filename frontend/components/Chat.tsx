@@ -1,7 +1,6 @@
-//@ts-nocheck
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ChatMessageList } from './ui/chat/chat-message-list';
 import { ChatBubble } from './ui/chat/chat-bubble';
 import { ChatBubbleAvatar } from './ui/chat/chat-bubble';
@@ -13,18 +12,17 @@ import { FiCornerDownLeft } from "react-icons/fi";
 import { ScrollArea } from "./ui/scroll-area"
 import Message from '@/lib/types/Message';
 
-import { useParams } from 'next/navigation'
 import User from '@/lib/types/User';
+import { toAMPM } from '@/lib/tools/dates';
 
-const ChatComponent = (params : { ticketId: number, user: User }) => {
-
+const ChatComponent = ({ ticketId, user } : { ticketId: number, user: User }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
+    const cardRef : any = useRef(null);
 
-    // Set up WebSocket connection on component mount
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:3001'); // Connect to WebSocket server
+        const socket = new WebSocket('ws://localhost:3001');
 
         socket.onopen = () => {
             socket.send(JSON.stringify({ type: 'init', user, ticketId }));
@@ -59,17 +57,26 @@ const ChatComponent = (params : { ticketId: number, user: User }) => {
         }
     };
 
+    useEffect(() => {
+        if (messages.length > 0) {
+          cardRef?.current?.scrollIntoView({ behavior: "smooth" }); //Use scrollIntoView to automatically scroll to my ref
+        }
+      }, [messages.length]);
+
     return (
         <>
-            <ScrollArea className='h-4/6'>
+            <ScrollArea className='h-4/6' id='scroller'>
                 <ChatMessageList>
                     {messages.map((msg, index) => (
-                        <ChatBubble key={index} variant={msg.userId === user.id ? "sent" : "received"}>
+                        <ChatBubble 
+                            ref={index + 1 === messages.length ? cardRef : null} 
+                            key={index} variant={msg.userId === user.id ? "sent" : "received"}
+                        >
                             <ChatBubbleAvatar fallback='US' />
                             <ChatBubbleMessage variant={msg.userId === user.id ? "sent" : "received"}>
                                 {msg.userId === user.id || <p className='text-xs text-bold mb-1'>{msg.userName}</p>}
                                 {msg.text}
-                                <p className='text-xs'>{new Date(msg.timestamp).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</p>
+                                <p className='text-xs'>{toAMPM(msg.timestamp)}</p>
                             </ChatBubbleMessage>
                         </ChatBubble>
                     ))}

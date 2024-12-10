@@ -13,12 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
 // UI Components
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Types and API
 import { BugType } from "@/lib/types/Ticket";
-import { uploadImage, pushUser, pushBugReport } from "@/lib/api";
+import { uploadImage, pushUser, pushBugReport, pushMessage } from "@/lib/api";
 
 // Form Configuration
 const FORM_CONFIG = {
@@ -149,13 +149,18 @@ export default function BugReportForm() {
       ).then(ids => ids.filter((id): id is number => id !== null));
 
       // Get or create user
-      const userId = await pushUser("Max");
+      const USER_NAME = "Max";
+      const userId = await pushUser(USER_NAME);
 
       // Submit bug report
-      await pushBugReport({ 
-        ...data, 
-        images: uploadedImageIds 
+      const ticketId = await pushBugReport({
+        ...data,
+        images: uploadedImageIds
       }, userId, files);
+
+      console.log("THIS IS THE RESULT LMAOAOAO");
+
+      await pushMessage(ticketId, data.text, {id: userId, name: USER_NAME});
 
       // Reset form state
       form.reset();
@@ -173,8 +178,8 @@ export default function BugReportForm() {
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description: error instanceof Error 
-          ? error.message 
+        description: error instanceof Error
+          ? error.message
           : "An unexpected error occurred while submitting the bug report.",
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
@@ -184,13 +189,13 @@ export default function BugReportForm() {
   };
 
   // Memoized bug type options
-  const BugTypeOptions = useMemo(() => 
+  const BugTypeOptions = useMemo(() =>
     Object.values(BugType).map((type) => (
       <SelectItem key={type} value={type}>
         {type}
       </SelectItem>
-    )), 
-  []);
+    )),
+    []);
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -220,8 +225,8 @@ export default function BugReportForm() {
                   render={({ field }: FormFieldProps<"bugType">) => (
                     <FormItem>
                       <FormLabel>Error Type</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -288,9 +293,9 @@ export default function BugReportForm() {
                           alt='image upload input field'
                         />
                       </FormControl>
-                      <ImagePreviewGrid 
-                        files={files} 
-                        onRemove={removeFile} 
+                      <ImagePreviewGrid
+                        files={files}
+                        onRemove={removeFile}
                       />
                       <FormMessage />
                     </FormItem>
@@ -298,9 +303,9 @@ export default function BugReportForm() {
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit'}

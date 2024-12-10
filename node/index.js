@@ -11,17 +11,15 @@ wss.on('connection', (ws) => {
     console.log("MESSAGE:", msg);
     if (msg.type === "init") {
       msg.user["client"] = ws;
-      if (channels.has(msg.documentId)) {
-        channels.get(msg.documentId).push(msg.user);
+      if (channels.has(msg.ticketId)) {
+        channels.get(msg.ticketId).push(msg.user);
       } else {
-        channels.set(msg.documentId, [msg.user]);
+        channels.set(msg.ticketId, [msg.user]);
       }
       ws.user = msg.user;
-      getData("http://localhost:1337/api/bug-reports", msg.documentId, ws);
-
-
+      getMessages(msg.ticketId, ws);
     } else if (msg.type === "message") {
-      const clients = channels.get(msg.documentId);
+      const clients = channels.get(msg.ticketId);
       if (clients) {
         const timeStamp = new Date().toISOString();
         msg.timestamp = timeStamp;
@@ -29,10 +27,7 @@ wss.on('connection', (ws) => {
         clients.forEach(o => {
           o.client.send(JSON.stringify(msg));
         })
-        // console.log(msg);
-        pushData("http://localhost:1337/api/messages", msg, parseInt(msg.ticketId))
-        // pushData("http://localhost:1337/api/messages", );
-        //TODO: append this to the messages in the server
+        pushMessage(msg)
       }
 
     } else if (msg.type === "close") {
@@ -53,18 +48,19 @@ wss.on('connection', (ws) => {
 console.log('WebSocket server is running on ws://localhost:3001');
 
 
-async function pushData(url, message, id) {
+async function pushMessage(msg) {
   try {
+    const id = Number(msg.ticketId);
     const payload = {
       data: {
-        text: message.text,
+        text: msg.text,
         bug_report: id,
-        timestamp: message.timestamp,
-        userId: message.userId,
-        userName: message.userName,
+        timestamp: msg.timestamp,
+        userId: msg.userId,
+        userName: msg.userName,
       },
     };
-    const response = await fetch(url, {
+    const response = await fetch("http://localhost:1337/api/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,17 +77,19 @@ async function pushData(url, message, id) {
   }
 }
 
-async function getData(url, id, client) {
+async function getMessages(id, client) {
   try {
-    const newUrl = `${url}/${id}?populate=*`;
-    console.log(newUrl)
-    const response = await fetch(`${url}/${id}?populate=*`);
+    const url = `http://localhost:1337/api/bug-reports/?filters[id][$eq]=${id}&populate=messages`;
+    console.log(url)
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
     const json = await response.json();
-    json.data.type = "messages";
-    client.send(JSON.stringify(json.data));
+    const res = json.data[0]
+    res.type = "messages";
+    console.log()
+    client.send(JSON.stringify(res));
 
   } catch (error) {
     console.error(error.message);

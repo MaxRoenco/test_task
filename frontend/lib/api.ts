@@ -1,4 +1,5 @@
-import { resolve } from "path";
+import Message from "./types/Message";
+import User from "./types/User";
 
 export async function fetcher(url: string, options = {}) {
   let response;
@@ -177,5 +178,34 @@ export async function fetchMessages(id : number) {
     } else {
       console.log('An unexpected error occurred. check lib/api/');
     }
+  }
+}
+
+export async function pushMessage(ticketId: number, text : string, user : User) {
+  try {
+    const timestamp = new Date().toISOString();
+    const payload = {
+      data: {
+        text: text,
+        bug_report: ticketId,
+        timestamp: timestamp,
+        userId: user.id,
+        userName: user.name,
+      },
+    };
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+  } catch (error : any) {
+    console.error(error.message);
   }
 }
