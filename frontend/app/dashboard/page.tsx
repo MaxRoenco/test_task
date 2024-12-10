@@ -5,20 +5,12 @@ import { Badge } from "@/components/ui/badge"
 import Link from 'next/link'
 import Image from 'next/image'
 import InputForm from '@/components/InputForm'
-
-interface Bug {
-    documentId: string,
-    id: number,
-    subject: string,
-    text: string,
-    createdAt: string,
-    bug_type: string,
-    images: any
-}
+import { cn } from '@/lib/utils'
+import Ticket from '@/lib/types/Ticket'
 
 export default async function BugReportsPage() {
 
-    const bugReports : Bug[] = await fetchTickets();
+    const bugReports : Ticket[] = await fetchTickets();
     console.log(bugReports);
 
     return (
@@ -33,8 +25,8 @@ export default async function BugReportsPage() {
                         <Card className="overflow-hidden w-full">
                             <CardContent className="p-0 h-40">
                                 <img
-                                    className="w-full h-full object-cover object-center"
-                                    src={e.hasOwnProperty("images") && e.images.length ? `http://localhost:1337${e.images[0].url}` : `https://picsum.photos/seed/${idx+100}/800`}
+                                    className={cn("w-full h-full object-cover object-center")}
+                                    src={e.hasOwnProperty("images") && e.images.length ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}` : `https://picsum.photos/seed/${idx+100}/800`}
                                     alt="Card image"
                                 />
                             </CardContent>
@@ -47,8 +39,7 @@ export default async function BugReportsPage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardFooter className='flex gap-2'>
-                                <Badge>{e.bug_type}</Badge>
-                                <Badge>{["High", "Medium", "Low"][Math.floor(Math.random()*3)]} priority</Badge>
+                                <Badge>{e.bugType}</Badge>
                             </CardFooter>
                         </Card>
                     </Link>

@@ -18,7 +18,7 @@ export async function fetcher(url: string, options = {}) {
 
 export async function fetchTickets() {
   try {
-    const response = await fetch('http://localhost:1337/api/bug-reports?populate=*');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?populate=*`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

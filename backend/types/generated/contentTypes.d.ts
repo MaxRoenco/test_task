@@ -441,7 +441,7 @@ export interface ApiBugReportBugReport extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    bug_type: Schema.Attribute.String;
+    bugType: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

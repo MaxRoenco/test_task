@@ -1,6 +1,6 @@
 import Message from "./Message";
 import User from "./User";
-import Attachment from "./Attachment";
+import Image from "./Image";
 
 export enum BugType {
     UI = 'UI',
@@ -31,7 +31,7 @@ export default interface Ticket {
     bugType: BugType;
     statusBug: StatusBug;
     priority: Priority;
-    attachments: Attachment[];
+    images: Image[];
     messages: Message[];
     user: User;
 }

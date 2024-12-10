@@ -15,7 +15,7 @@
         "text": {
             "type": "text"
         },
-        "bug_type": {
+        "bugType": {
             "type": "string"
         },
         "subject": {

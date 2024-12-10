@@ -1,4 +1,4 @@
-export default interface Attachment {
+export default interface Image {
     id: number;
     filename: string;
     url: string;
