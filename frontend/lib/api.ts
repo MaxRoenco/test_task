@@ -1,3 +1,5 @@
+import { resolve } from "path";
+
 export async function fetcher(url: string, options = {}) {
   let response;
   try {
@@ -18,6 +20,7 @@ export async function fetcher(url: string, options = {}) {
 
 export async function fetchTickets() {
   try {
+    // const waiting = await new Promise((resolve) => setTimeout(resolve, 3000));
     const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?populate=*`);
 
     if (!response.ok) {

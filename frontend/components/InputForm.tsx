@@ -28,7 +28,7 @@ import { fetcher } from "@/lib/api";
 import * as Dialog from "@radix-ui/react-dialog";
 
 const FormSchema = z.object({
-  bug_type: z.string({
+  bugType: z.string({
     required_error: "Please select an error type.",
   }),
   subject: z.string().min(5, {
@@ -61,7 +61,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     defaultValues: {
       subject: "",
       text: "",
-      bug_type: ErrorType.UI,
+      bugType: ErrorType.UI,
       image: null
     },
   });
@@ -135,7 +135,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     const payload = {
       data: {
         text: filteredData.text,
-        bug_type: filteredData.bug_type,
+        bugType: filteredData.bugType,
         subject: filteredData.subject,
         priority: ["High", "Medium", "Low"][Math.floor(Math.random()*3)],
         statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
@@ -205,12 +205,6 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      // const binaryFiles = await Promise.all(
-      //   files.map(async (file) => {
-      //     const binaryData = await convertImageToBinary(file);
-      //     return { ...file, binaryData };
-      //   })
-      // );
       const uploadedImageIds: number[] = [];
       for (const file of files) {
         const imageId = await uploadImage(file);
@@ -234,7 +228,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       form.reset({
         subject: '',
         text: '',
-        bug_type: ErrorType.UI,
+        bugType: ErrorType.UI,
         image: null,
       });
       setFiles([]);
@@ -286,8 +280,8 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
               <div className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="bug_type"
-                  render={({ field }: { field: ControllerRenderProps<any, "bug_type"> }) => (
+                  name="bugType"
+                  render={({ field }: { field: ControllerRenderProps<any, "bugType"> }) => (
                     <FormItem>
                       <FormLabel>Error type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
