@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
 import { fetchTickets } from '@/lib/api'
@@ -12,11 +13,19 @@ export default async function BugReportsPage() {
 
     const bugReports : Ticket[] = await fetchTickets();
     console.log(bugReports);
+=======
+import InputForm from '@/components/InputForm'
+import { Suspense } from 'react'
+import Cards from '@/app/dashboard/Cards'
+
+export default async function BugReportsPage() {
+>>>>>>> ef31322008c495c8a7e345fd18cb2b8200efa6c9
 
     return (
         <div className='w-4/6 flex flex-col mx-auto my-10'>
             <div className='flex justify-between'>
                 <h1 className='text-4xl font-bold'>My Tickets:</h1>
+<<<<<<< HEAD
                 <InputForm />
             </div>
             <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
@@ -44,6 +53,14 @@ export default async function BugReportsPage() {
                         </Card>
                     </Link>
                 )) : "Loading..."}
+=======
+                <InputForm/>
+            </div>
+            <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
+                <Suspense fallback={<p>Loading...</p>}>
+                    <Cards/>
+                </Suspense>
+>>>>>>> ef31322008c495c8a7e345fd18cb2b8200efa6c9
             </div>
         </div>
     );
