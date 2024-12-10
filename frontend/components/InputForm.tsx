@@ -117,7 +117,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     }
   }
 
-  async function pushUser(name : string, bugReportId : number){
+  async function pushUser(name : string){
     const payload = {
       data: {
         name: name,
@@ -134,14 +134,15 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       if (!response.ok) {
         throw new Error(`Failed to upload user: ${response.statusText}`);
       }
-      const data = await response.json();
-      console.log('Uploaded user successfully:', data);
+      const result = await response.json();
+      console.log('Uploaded user successfully:', result);
+      return result.data.id
     } catch (error : any){
       console.log(`Error: ${error}`);
     }
   }
 
-  async function pushBugReport(filteredData: any) {
+  async function pushBugReport(filteredData: any, userId : any) {
     console.log(files);
     const payload = {
       data: {
@@ -151,6 +152,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         priority: ["High", "Medium", "Low"][Math.floor(Math.random()*3)],
         statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
         images: filteredData.images,
+        ticket_user: userId
       },
     };
     let response = await fetch(
@@ -233,9 +235,12 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
         ...data,
         images: uploadedImageIds, // Assuming your bug_report model has an "images" field
       };
-      let bugReportId = await pushBugReport(bugReportData);
+      const userId = await pushUser("Max");
+      console.log("HIIII");
+      console.log(userId);
+      console.log("HIIII");
+      let bugReportId = await pushBugReport(bugReportData, userId);
       console.log(bugReportId)
-      pushUser("Max", bugReportId);
       // await pushAttachment(files, bugReportId);
 
       form.reset({
