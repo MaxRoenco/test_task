@@ -43,9 +43,9 @@ const FormSchema = z.object({
 });
 
 enum ErrorType {
-  Type1 = "UI",
-  Type2 = "Performance",
-  Type3 = "Functional",
+  UI = "UI",
+  PERFORMANCE = "Performance",
+  FUNCTIONAL = "Functional",
 }
 
 interface InputFormProps {
@@ -73,7 +73,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
     defaultValues: {
       subject: "",
       text: "",
-      bug_type: ErrorType.Type1,
+      bug_type: ErrorType.UI,
       image: null
     },
   });
@@ -241,7 +241,7 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       form.reset({
         subject: '',
         text: '',
-        bug_type: ErrorType.Type1,
+        bug_type: ErrorType.UI,
         image: null,
       });
       setFiles([]);

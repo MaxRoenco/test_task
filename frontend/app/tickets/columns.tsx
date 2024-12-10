@@ -1,5 +1,7 @@
 "use client"
 import Link from 'next/link'
+import { cn } from '../../lib/utils'
+import {toDMY} from '../../lib/tools/dates'
 
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -68,10 +70,11 @@ export const columns: ColumnDef<Bug>[] = [
         },
         cell: ({ row }) => {
             const st = String(row.getValue("statusBug"));
-            let color : string = "text-red-500"
-            if(st === "closed") color = "text-green-400";
-            else if(st === "in work") color = "text-yellow-400";
-            return <div className={"ml-4 text-left " + color}>{st}</div>
+            return <div className={cn("ml-4 text-left ", {
+                "text-red-500": st === "Open",
+                "text-yellow-400": st === "In Work",
+                "text-green-400": st === "Closed",
+            })}>{st}</div>
         },
     },
     {
@@ -82,14 +85,14 @@ export const columns: ColumnDef<Bug>[] = [
         accessorKey: "createdAt",
         header: "Created At",
         cell: ({ row }) => {
-            return new Date(row.getValue("createdAt")).toLocaleDateString("hi-IN");
+            return toDMY(row.getValue("createdAt"));
         }
     },
     {
         accessorKey: "updatedAt",
         header: "Updated At",
         cell: ({ row }) => {
-            return new Date(row.getValue("updatedAt")).toLocaleDateString("hi-IN");
+            return toDMY(row.getValue("updatedAt"));
         }
     },
     {
