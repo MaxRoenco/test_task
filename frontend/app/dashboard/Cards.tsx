@@ -20,7 +20,7 @@ export default async function Cards() {
                     <CardContent className="p-0 h-40">
                         <img
                             className={cn("w-full h-full object-cover object-center")}
-                            src={e.hasOwnProperty("images") && e.images.length ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}` : `https://picsum.photos/seed/${idx + 100}/800`}
+                            src={e.hasOwnProperty("images") && e.images && e.images.length ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}` : `https://picsum.photos/seed/${idx + 100}/800`}
                             alt="Card image"
                         />
                     </CardContent>

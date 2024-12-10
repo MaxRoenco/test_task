@@ -1,15 +1,24 @@
 "use client";
 
+import React, { useState, useCallback, useMemo } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
-// @ts-ignore
 import { useForm, ControllerRenderProps } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import Image from "next/image";
+import * as Dialog from "@radix-ui/react-dialog";
+
+// Toast Import
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+
+// UI Components
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,240 +31,166 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { fetcher } from "@/lib/api";
-import * as Dialog from "@radix-ui/react-dialog";
 
+// Types and API
+import { BugType } from "@/lib/types/Ticket";
+import { uploadImage, pushUser, pushBugReport } from "@/lib/api";
+
+// Form Configuration
+const FORM_CONFIG = {
+  subject: {
+    minLength: 5,
+    maxMessage: "Subject must be at least 5 characters."
+  },
+  text: {
+    minLength: 10,
+    maxLength: 160,
+    minMessage: "Text must be at least 10 characters.",
+    maxMessage: "Text must not be longer than 160 characters."
+  }
+};
+
+// Form Schema
 const FormSchema = z.object({
   bugType: z.string({
     required_error: "Please select an error type.",
   }),
-  subject: z.string().min(5, {
-    message: "Subject must be at least 5 characters.",
+  subject: z.string().min(FORM_CONFIG.subject.minLength, {
+    message: FORM_CONFIG.subject.maxMessage
   }),
-  text: z.string().min(10, {
-    message: "Text must be at least 10 characters.",
-  }).max(160, {
-    message: "Text must not be longer than 160 characters.",
-  }),
+  text: z.string()
+    .min(FORM_CONFIG.text.minLength, { message: FORM_CONFIG.text.minMessage })
+    .max(FORM_CONFIG.text.maxLength, { message: FORM_CONFIG.text.maxMessage }),
   image: z.any().optional(),
 });
 
-enum ErrorType {
-  UI = "UI",
-  PERFORMANCE = "Performance",
-  FUNCTIONAL = "Functional",
-}
+// Type Definitions
+type FormData = z.infer<typeof FormSchema>;
+type FormFieldProps<T extends keyof FormData> = {
+  field: ControllerRenderProps<FormData, T>;
+};
 
-interface InputFormProps {
-  onSubmitSuccess?: () => void;
-}
+// Image Preview Component
+const ImagePreviewGrid: React.FC<{
+  files: File[];
+  onRemove: (index: number) => void;
+}> = React.memo(({ files, onRemove }) => (
+  <div className="mt-4 grid grid-cols-3 gap-4">
+    {files.map((file, index) => (
+      <div key={`${file.name}-${index}`} className="relative group">
+        <Image
+          src={URL.createObjectURL(file)}
+          alt={`Upload preview ${index + 1}`}
+          width={100}
+          height={100}
+          className="object-cover rounded-md w-full h-24"
+        />
+        <Button
+          type="button"
+          onClick={() => onRemove(index)}
+          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          ×
+        </Button>
+      </div>
+    ))}
+  </div>
+));
 
-export default function InputForm({ onSubmitSuccess }: InputFormProps) {
+// Main Form Component
+export default function BugReportForm() {
   const [files, setFiles] = useState<File[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       subject: "",
       text: "",
-      bugType: ErrorType.UI,
+      bugType: BugType.UI,
       image: null
     },
   });
 
-  // async function convertImageToBinary(file: File) {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-
-  //     reader.onload = () => {
-  //       const binaryString = reader.result;
-  //       resolve(binaryString);
-  //     };
-
-  //     reader.onerror = () => {
-  //       reject(new Error('Failed to read file'));
-  //     };
-
-  //     reader.readAsBinaryString(file);
-  //   });
-  // }
-  async function uploadImage(file : File){
-    if (!file) {
-      console.error('No file provided');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('files', file);
-    try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/upload`, {
-        method: 'POST',
-        body: formData
-      })
-      if (!response.ok) {
-        throw new Error(`Failed to upload image: ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log('Uploaded image successfully:', data);
-      return data[0]?.id || null;
-    } catch(error:any){
-      console.log(`Error: ${error}`);
-    }
-  }
-
-  async function pushUser(name : string){
-    const payload = {
-      data: {
-        name: name,
-      },
-    };
-    try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-      if (!response.ok) {
-        throw new Error(`Failed to upload user: ${response.statusText}`);
-      }
-      const result = await response.json();
-      console.log('Uploaded user successfully:', result);
-      return result.data.id
-    } catch (error : any){
-      console.log(`Error: ${error}`);
-    }
-  }
-
-  async function pushBugReport(filteredData: any, userId : any) {
-    console.log(files);
-    const payload = {
-      data: {
-        text: filteredData.text,
-        bugType: filteredData.bugType,
-        subject: filteredData.subject,
-        priority: ["High", "Medium", "Low"][Math.floor(Math.random()*3)],
-        statusBug: ["Open", "In Work", "Closed"][Math.floor(Math.random()*3)],
-        images: filteredData.images,
-        ticket_user: userId
-      },
-    };
-    let response = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (!response.ok) {
-      const errorDetails = await response.json();
-      console.error("Strapi error response:", errorDetails);
-      throw new Error(`Failed to post data: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    console.log("Successfully submitted data:", result);
-    console.log(result.data.id);
-    return result.data.id;
-  }
-
-  // async function pushAttachment(files: File[], bugReportId: number) {
-  //   for (const [index, file] of files.entries()) {
-  //     const payload = {
-  //       data: {
-  //         filename: file.name,
-  //         url: file.type,
-  //         // binaryData: String(binaryFiles[index].binaryData),
-  //         bug_report: String(bugReportId),
-  //       },
-  //     };
-
-  //     try {
-  //       const response = await fetch(
-  //         `${process.env.NEXT_PUBLIC_STRAPI_URL_API}/attachments`,
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify(payload),
-  //         }
-  //       );
-
-  //       if (!response.ok) {
-  //         const errorDetails = await response.json();
-  //         console.error("Strapi error response:", errorDetails);
-  //         throw new Error(`Failed to post data: ${response.statusText}`);
-  //       }
-
-  //       const result = await response.json();
-  //       console.log("Successfully submitted data:", result);
-  //     } catch (error) {
-  //       console.error("Error submitting file:", file.name, error);
-  //     }
-  //   }
-  // }
-
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
-    try {
-      const uploadedImageIds: number[] = [];
-      for (const file of files) {
-        const imageId = await uploadImage(file);
-        if (imageId !== null) {
-          uploadedImageIds.push(imageId);
-        }
-      }
-      console.log('Uploaded Image IDs:', uploadedImageIds);
-      const bugReportData = {
-        ...data,
-        images: uploadedImageIds, // Assuming your bug_report model has an "images" field
-      };
-      const userId = await pushUser("Max");
-      console.log("HIIII");
-      console.log(userId);
-      console.log("HIIII");
-      let bugReportId = await pushBugReport(bugReportData, userId);
-      console.log(bugReportId)
-      // await pushAttachment(files, bugReportId);
-
-      form.reset({
-        subject: '',
-        text: '',
-        bugType: ErrorType.UI,
-        image: null,
-      });
-      setFiles([]);
-      setIsOpen(false); // Close the dialog after successful submission
-
-      // Call the success callback if provided
-      if (onSubmitSuccess) {
-        onSubmitSuccess();
-      }
-    } catch (error) {
-      console.error('Error processing files:', error);
-    }
-  }
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  // Memoized file change handler
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFiles(prev => [...prev, selectedFile]);
       form.setValue("image", selectedFile);
     }
-  }
+  }, [form]);
 
-  function removeFile(index: number) {
+  // Memoized file removal handler
+  const removeFile = useCallback((index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
     if (files.length === 1) {
       form.setValue("image", null);
     }
-  }
+  }, [files, form]);
+
+  // Optimized submit handler
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      // Concurrent image uploads
+      const uploadedImageIds = await Promise.all(
+        files.map(async (file) => {
+          try {
+            return await uploadImage(file);
+          } catch (error) {
+            console.error(`Failed to upload image: ${file.name}`, error);
+            return null;
+          }
+        })
+      ).then(ids => ids.filter((id): id is number => id !== null));
+
+      // Get or create user
+      const userId = await pushUser("Max");
+
+      // Submit bug report
+      await pushBugReport({ 
+        ...data, 
+        images: uploadedImageIds 
+      }, userId, files);
+
+      // Reset form state
+      form.reset();
+      setFiles([]);
+      setIsOpen(false);
+      router.refresh();
+
+      // Show success toast
+      toast({
+        title: "Bug Report Submitted",
+        description: "Your bug report has been successfully recorded.",
+      });
+    } catch (error) {
+      // Enhanced error handling
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error instanceof Error 
+          ? error.message 
+          : "An unexpected error occurred while submitting the bug report.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Memoized bug type options
+  const BugTypeOptions = useMemo(() => 
+    Object.values(BugType).map((type) => (
+      <SelectItem key={type} value={type}>
+        {type}
+      </SelectItem>
+    )), 
+  []);
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -265,37 +200,37 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
       <Dialog.Portal>
         <Dialog.Overlay
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsOpen(false)} // Close dialog when clicking outside
+          onClick={() => setIsOpen(false)}
         />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
         >
-          <Dialog.Title></Dialog.Title>
+          <Dialog.Title className="sr-only">Add a Ticket</Dialog.Title>
           <div>
-            <h1 className="text-4xl font-bold mb-3">Add a ticket</h1>
+            <h1 className="text-4xl font-bold mb-3">Add a Ticket</h1>
             <p className="mb-4 text-gray-400">Upload an image and submit your details.</p>
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
+                {/* Bug Type Field */}
                 <FormField
                   control={form.control}
                   name="bugType"
-                  render={({ field }: { field: ControllerRenderProps<any, "bugType"> }) => (
+                  render={({ field }: FormFieldProps<"bugType">) => (
                     <FormItem>
-                      <FormLabel>Error type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel>Error Type</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.values(ErrorType).map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
+                          {BugTypeOptions}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -303,10 +238,11 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
                   )}
                 />
 
+                {/* Subject Field */}
                 <FormField
                   control={form.control}
                   name="subject"
-                  render={({ field }: { field: ControllerRenderProps<any, "subject"> }) => (
+                  render={({ field }: FormFieldProps<"subject">) => (
                     <FormItem>
                       <FormLabel>Subject</FormLabel>
                       <FormControl>
@@ -317,12 +253,13 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
                   )}
                 />
 
+                {/* Text Field */}
                 <FormField
                   control={form.control}
                   name="text"
-                  render={({ field }: { field: ControllerRenderProps<any, "text"> }) => (
+                  render={({ field }: FormFieldProps<"text">) => (
                     <FormItem>
-                      <FormLabel>Text</FormLabel>
+                      <FormLabel>Details</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Enter details"
@@ -335,47 +272,38 @@ export default function InputForm({ onSubmitSuccess }: InputFormProps) {
                   )}
                 />
 
+                {/* Image Upload Field */}
                 <FormField
                   control={form.control}
                   name="image"
-                  render={({ field }: { field: ControllerRenderProps<any, "image"> }) => (
+                  render={() => (
                     <FormItem>
                       <FormControl>
                         <Input
                           type="file"
                           accept="image/*"
-                          onChange={handleChange}
+                          onChange={handleFileChange}
                           className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                           id="file_input"
                         />
                       </FormControl>
-                      <div className="mt-4 grid grid-cols-3 gap-4">
-                        {files.map((file, index) => (
-                          <div key={`${file.name}-${index}`} className="relative group">
-                            <Image
-                              src={URL.createObjectURL(file)}
-                              alt={`Upload preview ${index + 1}`}
-                              width={100}
-                              height={100}
-                              className="object-cover rounded-md w-full h-24"
-                            />
-                            <Button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
+                      <ImagePreviewGrid 
+                        files={files} 
+                        onRemove={removeFile} 
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <Button type="submit" className="w-full">Submit</Button>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </Button>
             </form>
           </Form>
           <Dialog.Close asChild>
