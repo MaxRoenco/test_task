@@ -18,27 +18,15 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Bug = {
-    id: number,
-    subject: string,
-    text: string,
-    createdAt: string,
-    updatedAt: string,
-    bug_type: string,
-    statusBug: string,
-    priority: string,
-    documentId: string,
-}
+import Ticket from '@/lib/types/Ticket'
 
-export const columns: ColumnDef<Bug>[] = [
+export const columns: ColumnDef<Ticket>[] = [
     {
         accessorKey: "subject",
         header: "Subject",
     },
     {
-        accessorKey: "bug_type",
+        accessorKey: "bugType",
         header: ({ column }) => {
             return (
                 <Button
@@ -51,7 +39,7 @@ export const columns: ColumnDef<Bug>[] = [
             )
         },
         cell: ({ row }) => {
-            const bt = String(row.getValue("bug_type"));
+            const bt = String(row.getValue("bugType"));
             return <div className="ml-4 text-left">{bt}</div>
         },
     },

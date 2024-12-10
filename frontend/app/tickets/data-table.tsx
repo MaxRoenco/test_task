@@ -7,11 +7,8 @@ import {
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
-    SortingState,
     getSortedRowModel,
-    ColumnFiltersState,
     getFilteredRowModel,
-    VisibilityState,
 } from "@tanstack/react-table"
 
 import {
@@ -26,6 +23,10 @@ import {
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    canNextPage: boolean
+    canPrevPage: boolean
+    totalPages: number
+    pageNumber: number
 }
 
 import { Button } from "@/components/ui/button"
@@ -37,14 +38,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    canNextPage,
+    canPrevPage,
+    totalPages,
+    pageNumber,
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 
     const table = useReactTable({
         data,
@@ -52,15 +55,7 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onSortingChange: setSorting,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-        },
         defaultColumn: {
             size: 200, //starting column size
             minSize: 50, //enforced during column resizing
@@ -153,23 +148,39 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <p className="mr-1 text-gray-500">Page {table.getState().pagination.pageIndex + 1} out of {table.getPageCount()}</p>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
+                {canPrevPage && <Link href={`/tickets?page=1`}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                    >
+                        First
+                    </Button>
+                </Link>}
+                {canPrevPage && <Link href={`/tickets?page=${pageNumber - 1}`}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                    >
+                        Previous
+                    </Button>
+                </Link>}
+                <p className="mr-1 text-gray-500">{`Page ${pageNumber} out of ${totalPages}`}</p>
+                {canNextPage && <Link href={`/tickets?page=${pageNumber + 1}`}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                    >
+                        Next
+                    </Button>
+                </Link>}
+                {canNextPage && <Link href={`/tickets?page=${totalPages}`}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                    >
+                        Last
+                    </Button>
+                </Link>}
             </div>
         </div>
 

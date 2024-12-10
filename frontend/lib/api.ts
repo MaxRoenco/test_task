@@ -20,8 +20,7 @@ export async function fetcher(url: string, options = {}) {
 
 export async function fetchTickets() {
   try {
-    // const waiting = await new Promise((resolve) => setTimeout(resolve, 3000));
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?populate=*`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?populate=images`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -29,6 +28,25 @@ export async function fetchTickets() {
 
     const data = await response.json();
     return data.data;
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log("Error: ", err);
+    } else {
+      console.log('An unexpected error occurred. check lib/api/');
+    }
+  }
+}
+
+export async function fetchTicketsPagination(page : number, pageSize : number) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?pagination[page]=${page}&pagination[pageSize]=${pageSize}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
   } catch (err) {
     if (err instanceof Error) {
       console.log("Error: ", err);
@@ -120,4 +138,44 @@ export async function pushBugReport(filteredData: any, userId : any, files: any)
   console.log("Successfully submitted data:", result);
   console.log(result.data.id);
   return result.data.id;
+}
+
+export async function fetchTicket(id : number) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports/?filters[id][$eq]=${id}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if(data.data.length < 1) console.error("No ticket with ID = " + id);
+    return data.data[0];
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log("Error: ", err);
+    } else {
+      console.log('An unexpected error occurred. check lib/api/');
+    }
+  }
+}
+
+export async function fetchMessages(id : number) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports/?filters[id][$eq]=${id}&populate=messages`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if(data.data.length < 1) console.error("No ticket with ID = " + id);
+    return data.data[0].messages;
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log("Error: ", err);
+    } else {
+      console.log('An unexpected error occurred. check lib/api/');
+    }
+  }
 }

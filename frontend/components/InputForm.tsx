@@ -246,7 +246,7 @@ export default function BugReportForm() {
                     <FormItem>
                       <FormLabel>Subject</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter subject" {...field} />
+                        <Input alt='subject input field' placeholder="Enter subject" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -285,6 +285,7 @@ export default function BugReportForm() {
                           onChange={handleFileChange}
                           className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                           id="file_input"
+                          alt='image upload input field'
                         />
                       </FormControl>
                       <ImagePreviewGrid 

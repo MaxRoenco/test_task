@@ -1,39 +1,50 @@
-"use client"
-import { Bug, columns } from "./columns"
+
+import { fetchTicketsPagination } from "@/lib/api";
+import Data from "@/lib/types/Data";
+import { columns } from "./columns"
 import { DataTable } from "./data-table"
-import { useState, useEffect, useCallback } from "react";
 
-export default function DemoPage() {
-  const [bugReports, setBugReports] = useState<Bug[]>([]);
-  const [error, setError] = useState<string | null>(null);
+const ITEMS_PER_PAGE = 7;
 
-  const fetchBugReports = useCallback(async () => {
-      try {
-          const response = await fetch('http://localhost:1337/api/bug-reports?populate=*');
 
-          if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-          }
 
-          const data = await response.json();
-          setBugReports(data.data);
-          console.log(data);
-      } catch (err) {
-          if (err instanceof Error) {
-              setError(err.message);
-          } else {
-              setError('An unexpected error occurred.');
-          }
-      }
-  }, []);
+export default async function TicketsTable(props: {
+    searchParams?: Promise<{
+        query?: string;
+        page?: string;
+    }>;
+}) {
 
-  useEffect(() => {
-      fetchBugReports();
-  }, [fetchBugReports])
+    const searchParams = await props.searchParams;
 
-  return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={bugReports} />
-    </div>
-  )
+    let currentPage : number = Number(searchParams?.page) || 1;
+    let data: Data = await fetchTicketsPagination(currentPage, ITEMS_PER_PAGE);
+
+    const totalPages = data.meta.pagination.pageCount;
+
+    
+    if(currentPage > totalPages) {
+        currentPage = totalPages;
+        data = await fetchTicketsPagination(currentPage, ITEMS_PER_PAGE);
+    } else if(currentPage < 1) {
+        currentPage = 1;
+    }
+
+    const canNextPage : boolean = currentPage < totalPages;
+    const canPrevPage : boolean = currentPage > 1;
+
+
+
+    return (
+        <div className="container mx-auto py-10">
+            <DataTable
+                columns={columns}
+                data={data.data}
+                canNextPage={canNextPage}
+                canPrevPage={canPrevPage}
+                totalPages={totalPages}
+                pageNumber={currentPage}
+            />
+        </div>
+    )
 }

@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,28 +11,23 @@ import { Button } from './ui/button';
 import { FiCornerDownLeft } from "react-icons/fi";
 
 import { ScrollArea } from "./ui/scroll-area"
+import Message from '@/lib/types/Message';
 
-const ChatComponent = ({ ticketId, documentId, user }: { documentId: string, ticketId: string, user: { id: number, name: string } }) => {
+import { useParams } from 'next/navigation'
+import User from '@/lib/types/User';
+
+const ChatComponent = (params : { ticketId: number, user: User }) => {
+
     const [message, setMessage] = useState('');
-    interface Message {
-        type: string;
-        id: string;
-        text: string;
-        variant: "sent" | "received";
-        timestamp: string;
-        userId: number;
-        userName: string;
-    }
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
-    const [clientId, setClientId] = useState<string | null>(null); // To store the client's ID
 
     // Set up WebSocket connection on component mount
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3001'); // Connect to WebSocket server
 
         socket.onopen = () => {
-            socket.send(JSON.stringify({ type: 'init', user, documentId }));
+            socket.send(JSON.stringify({ type: 'init', user, ticketId }));
             console.log("Connected to socket");
         };
 
@@ -42,7 +37,6 @@ const ChatComponent = ({ ticketId, documentId, user }: { documentId: string, tic
                 setMessages((prevMessages) => [...prevMessages, data]);
             } else if(data.type === 'messages') {
                 console.log("MESSAGES:",data.messages);
-                data.messages.forEach(m => m.user = user);
                 setMessages((prevMessages) => [...prevMessages, ...data.messages]);
             }
         };
@@ -60,7 +54,7 @@ const ChatComponent = ({ ticketId, documentId, user }: { documentId: string, tic
 
     const handleSendMessage = () => {
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({ type: 'message', text: message, ticketId, documentId, userId: user.id, userName: user.name }));
+            ws.send(JSON.stringify({ type: 'message', text: message, ticketId, userId: user.id, userName: user.name }));
             setMessage('');
         }
     };
