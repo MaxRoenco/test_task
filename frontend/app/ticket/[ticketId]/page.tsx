@@ -3,7 +3,7 @@ import ChatComponent from '../../../components/Chat';
 import { Card, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
 import { useState, useEffect, useCallback } from 'react';
 import { Badge } from '../../../components/ui/badge';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useParams } from 'next/navigation'
@@ -21,7 +21,7 @@ import { toAMPM, toDMY } from '@/lib/tools/dates';
 
 const ChatPage = () => {
   const params = useParams<{ ticketId: string }>()
-  
+
   const [ticketInfo, setTicketInfo] = useState<Ticket | null>(null);
 
   const fetchTicketInfo = useCallback(async () => {
@@ -48,20 +48,22 @@ const ChatPage = () => {
                 <DialogTitle>{ticketInfo.subject}</DialogTitle>
                 <DialogDescription className='my-5'>
                   {ticketInfo?.text}
-                  <br /><br />
-                  <Badge className='mr-1'>{ticketInfo.bugType}</Badge>
-                  {/* <Badge>{ticketInfo.priority}</Badge> RENDER ONLY FOR DEVELOPER*/}
                 </DialogDescription>
+                <DialogFooter className='flex w-full flex-row'>
+                  <div className='flex w-full flex-row'>
+                    <Badge className='text-center'>{ticketInfo.bugType}</Badge>
+                  </div>
+                </DialogFooter>
                 <DialogDescription>
                   {`${toDMY(ticketInfo.createdAt)} ${toAMPM(ticketInfo.createdAt)}`}
                 </DialogDescription>
               </DialogHeader>
               {(ticketInfo && ticketInfo.hasOwnProperty("images")) ? ticketInfo.images.map((e, idx) => {
-              return <Image key={idx} width={100} height={100} alt="bug report image" src={e.url} />
-            }) : ""}
+                return <Image key={idx} width={100} height={100} alt="bug report image" src={e.url} />
+              }) : ""}
             </DialogContent>
           </Dialog>
-          
+
         </CardHeader>}
         {ticketInfo && <ChatComponent ticketId={ticketInfo.id} user={{ id: 1, name: "user" }} />}
       </Card>
