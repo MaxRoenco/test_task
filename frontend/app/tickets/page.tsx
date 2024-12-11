@@ -5,7 +5,7 @@ import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import { validateSorting } from "@/lib/tools/validators";
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 7;
 const sortableFields = ["subject", "bugType", "statusBug", "priority", "createdAt", "updatedAt"]
 
 
