@@ -20,10 +20,26 @@ import {
 
 import Ticket from '@/lib/types/Ticket'
 
+declare module '@tanstack/react-table' {
+    interface TableMeta<TData> {
+      sort : string
+    }
+  }
+
 export const columns: ColumnDef<Ticket>[] = [
     {
         accessorKey: "subject",
-        header: "Subject",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Subject
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        }
     },
     {
         accessorKey: "bugType",
@@ -67,18 +83,48 @@ export const columns: ColumnDef<Ticket>[] = [
     },
     {
         accessorKey: "priority",
-        header: "Priority"
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Priority
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        }
     },
     {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Created At
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             return toDMY(row.getValue("createdAt"));
         }
     },
     {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Updated At
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             return toDMY(row.getValue("updatedAt"));
         }

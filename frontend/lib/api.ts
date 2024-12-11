@@ -37,9 +37,9 @@ export async function fetchTickets() {
   }
 }
 
-export async function fetchTicketsPagination(page : number, pageSize : number) {
+export async function fetchTicketsPagination(page : number, sort : string, pageSize : number) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?pagination[page]=${page}&pagination[pageSize]=${pageSize}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?pagination[page]=${page}&pagination[pageSize]=${pageSize}&sort=${sort}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
