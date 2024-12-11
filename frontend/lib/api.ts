@@ -80,30 +80,30 @@ export async function uploadImage(file : File){
   }
 }
 
-export async function pushUser(name : string){
-  const payload = {
-    data: {
-      name: name,
-    },
-  };
-  try{
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-    if (!response.ok) {
-      throw new Error(`Failed to upload user: ${response.statusText}`);
-    }
-    const result = await response.json();
-    console.log('Uploaded user successfully:', result);
-    return result.data.id
-  } catch (error : any){
-    console.log(`Error: ${error}`);
-  }
-}
+// export async function pushUser(name : string){
+//   const payload = {
+//     data: {
+//       name: name,
+//     },
+//   };
+//   try{
+//     const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(payload),
+//     })
+//     if (!response.ok) {
+//       throw new Error(`Failed to upload user: ${response.statusText}`);
+//     }
+//     const result = await response.json();
+//     console.log('Uploaded user successfully:', result);
+//     return result.data.id
+//   } catch (error : any){
+//     console.log(`Error: ${error}`);
+//   }
+// }
 
 export async function pushBugReport(filteredData: any, userId : any, files: any) {
   console.log(files);
@@ -207,5 +207,63 @@ export async function pushMessage(ticketId: number, text : string, user : User) 
     const json = await response.json();
   } catch (error : any) {
     console.error(error.message);
+  }
+}
+
+export async function getUser(name : string){
+  try{
+    const response = await fetch(`http://localhost:1337/api/ticket-users?filters[name][$eq]=${name}`);
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+    const result = await response.json();
+    console.log(result?.data[0]?.id);
+    return result?.data?.length ? result?.data[0]?.id : null;
+  } catch(error) {
+    console.log(`Error: ${error}`);
+    return null;
+  }
+}
+
+export async function pushUser(name : string) {
+  try {
+      const payload = {
+        data: {
+          name: name,
+        },
+      };
+      const response = await fetch(`http://localhost:1337/api/ticket-users`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log(result);
+      return result?.data ? result.data.id : null;
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    return null
+  }
+}
+
+export async function checkPushUser(name : string) {
+  try {
+    const userID = await getUser(name);
+    if (userID) {
+      console.log(`User exists with ID: ${userID}`);
+      return userID;
+    } else {
+      const newUser = await pushUser(name);
+      console.log(`New userID: ${newUser}`);
+      return newUser?.id || null;
+    }
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    return null;
   }
 }
