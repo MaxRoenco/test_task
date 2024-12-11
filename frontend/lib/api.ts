@@ -1,4 +1,3 @@
-import Message from "./types/Message";
 import User from "./types/User";
 
 export async function fetcher(url: string, options = {}) {
@@ -38,9 +37,9 @@ export async function fetchTickets() {
   }
 }
 
-export async function fetchTicketsPagination(page : number, pageSize : number) {
+export async function fetchTicketsPagination(page : number, sort : string, filter : string, pageSize : number) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?pagination[page]=${page}&pagination[pageSize]=${pageSize}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports?pagination[page]=${page}&pagination[pageSize]=${pageSize}&sort=${sort}&filters[subject][$containsi]=${filter}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -170,7 +169,7 @@ export async function fetchMessages(id : number) {
     }
 
     const data = await response.json();
-    if(data.data.length < 1) console.error("No ticket with ID = " + id);
+    if(data.data.length < 1) console.error(`No ticket with ID = ${id}`);
     return data.data[0].messages;
   } catch (err) {
     if (err instanceof Error) {

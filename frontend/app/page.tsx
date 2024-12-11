@@ -14,12 +14,12 @@ const Page = () => {
       </Link>
       <Link href="/dashboard">
         <Button size="lg">
-          User
+          <Link className="w-full h-full flex justify-center items-center" href="/tickets">Developer</Link>
         </Button>
       </Link> */}
       <MainPageCard/>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

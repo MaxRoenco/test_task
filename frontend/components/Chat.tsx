@@ -22,7 +22,7 @@ const ChatComponent = ({ ticketId, user } : { ticketId: number, user: User }) =>
     const cardRef : any = useRef(null);
 
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:3001');
+        const socket = new WebSocket(String(process.env.NEXT_PUBLIC_WEBSOCKET_URL));
 
         socket.onopen = () => {
             socket.send(JSON.stringify({ type: 'init', user, ticketId }));
@@ -59,7 +59,7 @@ const ChatComponent = ({ ticketId, user } : { ticketId: number, user: User }) =>
 
     useEffect(() => {
         if (messages.length > 0) {
-          cardRef?.current?.scrollIntoView({ behavior: "smooth" }); //Use scrollIntoView to automatically scroll to my ref
+          cardRef?.current?.scrollIntoView({ behavior: "smooth" });
         }
       }, [messages.length]);
 

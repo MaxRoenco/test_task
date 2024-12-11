@@ -1,5 +1,4 @@
 "use client"
-
 import * as React from "react"
 import {
     ColumnDef,
@@ -7,8 +6,7 @@ import {
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
-    getSortedRowModel,
-    getFilteredRowModel,
+    SortingState
 } from "@tanstack/react-table"
 
 import {
@@ -20,15 +18,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
-    canNextPage: boolean
-    canPrevPage: boolean
-    totalPages: number
-    pageNumber: number
-}
-
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -38,7 +27,20 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
+import { useRouter, useSearchParams } from 'next/navigation'
+
+const DEBOUNCE = 300;
+
+interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[]
+    data: TData[]
+    canNextPage: boolean
+    canPrevPage: boolean
+    totalPages: number
+    pageNumber: number
+    sort?: string
+    filter: string
+}
 
 export function DataTable<TData, TValue>({
     columns,
@@ -47,33 +49,111 @@ export function DataTable<TData, TValue>({
     canPrevPage,
     totalPages,
     pageNumber,
+    sort,
+    filter
 }: DataTableProps<TData, TValue>) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const initialSorting = React.useMemo(() => {
+        if (sort) {
+            const [id, desc] = sort.split(':');
+            return [{ id, desc: desc === 'desc' }];
+        }
+        return [];
+    }, [sort]);
+
+    const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
+
+    const handleSortingChange = React.useCallback((updater: React.SetStateAction<SortingState>) => {
+        setSorting(updater);
+
+        const newSorting = typeof updater === 'function'
+            ? updater(sorting)
+            : updater;
+
+        if (newSorting.length > 0) {
+            const newSort = `${newSorting[0].id}:${newSorting[0].desc ? "desc" : "asc"}`;
+
+            const params = new URLSearchParams(searchParams);
+            params.set('sort', newSort);
+
+            router.replace(`/tickets?${params.toString()}`, { scroll: false });
+        }
+    }, [router, searchParams]);
+
+    const [filtering, setFiltering] = React.useState<string>(filter);
+
+    const [debouncedFilter, setDebouncedFilter] = React.useState<string>(filter);
+
+    const handleFilterChange = React.useCallback((value: string) => {
+        setFiltering(value);
+    }, []);
+
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedFilter(filtering);
+        }, DEBOUNCE);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [filtering]);
+
+    React.useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+
+        if (debouncedFilter) {
+            params.set('filter', debouncedFilter);
+        } else {
+            params.delete('filter');
+        }
+
+        router.replace(`/tickets?${params.toString()}`, { scroll: false });
+    }, [debouncedFilter, router, searchParams]);
 
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            sorting,
+        },
+        onSortingChange: handleSortingChange,
+        manualSorting: true,
         defaultColumn: {
-            size: 200, //starting column size
-            minSize: 50, //enforced during column resizing
-            maxSize: 500, //enforced during column resizing
+            size: 200,
+            minSize: 50,
+            maxSize: 500,
         },
     })
+
+    const navigateWithSort = (page: number | string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', page.toString());
+
+        if (sort) {
+            params.set('sort', sort);
+        }
+
+        router.push(`/tickets?${params.toString()}`);
+    }
 
     return (
         <div className="mx-10">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Filter statuses..."
-                    value={(table.getColumn("subject")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("subject")?.setFilterValue(event.target.value)
-                    }
+                    placeholder="Filter tickets..."
+                    value={filtering}
                     className="max-w-sm"
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        handleFilterChange(value);
+                        table.getColumn("subject")?.setFilterValue(value);
+                    }}
                 />
+
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
@@ -148,41 +228,40 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                {canPrevPage && <Link href={`/tickets?page=1`}>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                    >
-                        First
-                    </Button>
-                </Link>}
-                {canPrevPage && <Link href={`/tickets?page=${pageNumber - 1}`}>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                    >
-                        Previous
-                    </Button>
-                </Link>}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateWithSort(1)}
+                    disabled={!canPrevPage}
+                >
+                    First
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateWithSort(pageNumber - 1)}
+                    disabled={!canPrevPage}
+                >
+                    Previous
+                </Button>
                 <p className="mr-1 text-gray-500">{`Page ${pageNumber} out of ${totalPages}`}</p>
-                {canNextPage && <Link href={`/tickets?page=${pageNumber + 1}`}>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                    >
-                        Next
-                    </Button>
-                </Link>}
-                {canNextPage && <Link href={`/tickets?page=${totalPages}`}>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                    >
-                        Last
-                    </Button>
-                </Link>}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateWithSort(pageNumber + 1)}
+                    disabled={!canNextPage}
+                >
+                    Next
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateWithSort(totalPages)}
+                    disabled={!canNextPage}
+                >
+                    Last
+                </Button>
             </div>
         </div>
-
     )
 }

@@ -1,50 +1,48 @@
-
 import { fetchTicketsPagination } from "@/lib/api";
-import Data from "@/lib/types/Data";
-import { columns } from "./columns"
-import { DataTable } from "./data-table"
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
+import { validateSorting } from "@/lib/tools/validators";
 
 const ITEMS_PER_PAGE = 7;
+const SORTABLE_FIELDS : string[] = ["subject", "bugType", "statusBug", "priority", "createdAt", "updatedAt"] as const;
 
+type SearchParams = {
+    sort?: string;
+    page?: string;
+    filter?: string;
+};
 
+export default async function TicketsTable({ searchParams }: { searchParams?: Promise<SearchParams> }) {
 
-export default async function TicketsTable(props: {
-    searchParams?: Promise<{
-        query?: string;
-        page?: string;
-    }>;
-}) {
+    const params = await searchParams;
 
-    const searchParams = await props.searchParams;
+    const sort = validateSorting(params?.sort, SORTABLE_FIELDS, "bugType:desc");
+    const page = Math.max(1, Number(params?.page) || 1);
+    const filter = params?.filter || "";
 
-    let currentPage : number = Number(searchParams?.page) || 1;
-    let data: Data = await fetchTicketsPagination(currentPage, ITEMS_PER_PAGE);
+    const data = await fetchTicketsPagination(page, sort, filter, ITEMS_PER_PAGE);
+    const { pageCount: totalPages } = data.meta.pagination;
 
-    const totalPages = data.meta.pagination.pageCount;
+    const adjustedPage = Math.min(Math.max(page, 1), totalPages);
+    const adjustedData = adjustedPage !== page 
+        ? await fetchTicketsPagination(adjustedPage, sort, filter, ITEMS_PER_PAGE)
+        : data;
 
-    
-    if(currentPage > totalPages) {
-        currentPage = totalPages;
-        data = await fetchTicketsPagination(currentPage, ITEMS_PER_PAGE);
-    } else if(currentPage < 1) {
-        currentPage = 1;
-    }
-
-    const canNextPage : boolean = currentPage < totalPages;
-    const canPrevPage : boolean = currentPage > 1;
-
-
+    const canNextPage = adjustedPage < totalPages;
+    const canPrevPage = adjustedPage > 1;
 
     return (
         <div className="container mx-auto py-10">
             <DataTable
                 columns={columns}
-                data={data.data}
+                data={adjustedData.data}
                 canNextPage={canNextPage}
                 canPrevPage={canPrevPage}
                 totalPages={totalPages}
-                pageNumber={currentPage}
+                pageNumber={adjustedPage}
+                sort={sort}
+                filter={filter}
             />
         </div>
-    )
+    );
 }
