@@ -8,12 +8,12 @@ const Page = () => {
       <h1 className="text-2xl">You're a...</h1>
       <div>
         <Button size="lg">
-          <Link href="/developer">Developer</Link>
+          <Link className="w-full h-full flex justify-center items-center" href="/tickets">Developer</Link>
         </Button>
       </div>
       <div>
         <Button size="lg">
-          <Link href="/user">User</Link>
+          <Link className="w-full h-full flex justify-center items-center" href="/dashboard">User</Link>
         </Button>
       </div>
     </div>
