@@ -1,24 +1,23 @@
-import React from 'react'
-import { Button } from '../components/ui/button'
-import Link from 'next/link'
+import React from "react";
+import { Button } from "../components/ui/button";
+import Link from "next/link";
 
 const Page = () => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="mb-4">You're a...</h1>
-      <Link href="/tickets">
-        <Button size="lg" className="mb-2">
-          Developer
-        </Button>
-      </Link>
-      <Link href="/dashboard">
+    <div className="w-full h-screen flex justify-center items-center flex-col gap-4">
+      <h1 className="text-2xl">You're a...</h1>
+      <div>
         <Button size="lg">
-          User
+          <Link href="/developer">Developer</Link>
         </Button>
-      </Link>
-
+      </div>
+      <div>
+        <Button size="lg">
+          <Link href="/user">User</Link>
+        </Button>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
