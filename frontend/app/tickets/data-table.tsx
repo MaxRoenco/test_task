@@ -29,6 +29,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { useRouter, useSearchParams } from 'next/navigation'
 
+const DEBOUNCE = 300;
+
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
@@ -37,6 +39,7 @@ interface DataTableProps<TData, TValue> {
     totalPages: number
     pageNumber: number
     sort?: string
+    filter: string
 }
 
 export function DataTable<TData, TValue>({
@@ -46,12 +49,12 @@ export function DataTable<TData, TValue>({
     canPrevPage,
     totalPages,
     pageNumber,
-    sort
+    sort,
+    filter
 }: DataTableProps<TData, TValue>) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Parse initial sorting from URL or props
     const initialSorting = React.useMemo(() => {
         if (sort) {
             const [id, desc] = sort.split(':');
@@ -62,28 +65,52 @@ export function DataTable<TData, TValue>({
 
     const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
 
-    // Handle sorting change
     const handleSortingChange = React.useCallback((updater: React.SetStateAction<SortingState>) => {
-        // Update local state
         setSorting(updater);
 
-        // Get the new sorting state
-        const newSorting = typeof updater === 'function' 
-            ? updater(sorting) 
+        const newSorting = typeof updater === 'function'
+            ? updater(sorting)
             : updater;
 
-        // If sorting changed, update URL without full page reload
         if (newSorting.length > 0) {
             const newSort = `${newSorting[0].id}:${newSorting[0].desc ? "desc" : "asc"}`;
-            
-            // Create new search params
+
             const params = new URLSearchParams(searchParams);
             params.set('sort', newSort);
-            
-            // Replace URL without full reload
+
             router.replace(`/tickets?${params.toString()}`, { scroll: false });
         }
     }, [router, searchParams]);
+
+    const [filtering, setFiltering] = React.useState<string>(filter);
+
+    const [debouncedFilter, setDebouncedFilter] = React.useState<string>(filter);
+
+    const handleFilterChange = React.useCallback((value: string) => {
+        setFiltering(value);
+    }, []);
+
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedFilter(filtering);
+        }, DEBOUNCE);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [filtering]);
+
+    React.useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+
+        if (debouncedFilter) {
+            params.set('filter', debouncedFilter);
+        } else {
+            params.delete('filter');
+        }
+
+        router.replace(`/tickets?${params.toString()}`, { scroll: false });
+    }, [debouncedFilter, router, searchParams]);
 
     const table = useReactTable({
         data,
@@ -102,12 +129,10 @@ export function DataTable<TData, TValue>({
         },
     })
 
-    // Create a function to navigate with preserved sorting
     const navigateWithSort = (page: number | string) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', page.toString());
-        
-        // Preserve sorting if exists
+
         if (sort) {
             params.set('sort', sort);
         }
@@ -120,8 +145,15 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter tickets..."
+                    value={filtering}
                     className="max-w-sm"
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        handleFilterChange(value);
+                        table.getColumn("subject")?.setFilterValue(value);
+                    }}
                 />
+
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

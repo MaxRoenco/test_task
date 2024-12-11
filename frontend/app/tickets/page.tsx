@@ -9,18 +9,23 @@ const SORTABLE_FIELDS : string[] = ["subject", "bugType", "statusBug", "priority
 type SearchParams = {
     sort?: string;
     page?: string;
+    filter?: string;
 };
 
-export default async function TicketsTable({ searchParams }: { searchParams?: SearchParams }) {
-    const sort = validateSorting(searchParams?.sort, SORTABLE_FIELDS, "bugType:desc");
-    const page = Math.max(1, Number(searchParams?.page) || 1);
+export default async function TicketsTable({ searchParams }: { searchParams?: Promise<SearchParams> }) {
 
-    const data = await fetchTicketsPagination(page, sort, ITEMS_PER_PAGE);
+    const params = await searchParams;
+
+    const sort = validateSorting(params?.sort, SORTABLE_FIELDS, "bugType:desc");
+    const page = Math.max(1, Number(params?.page) || 1);
+    const filter = params?.filter || "";
+
+    const data = await fetchTicketsPagination(page, sort, filter, ITEMS_PER_PAGE);
     const { pageCount: totalPages } = data.meta.pagination;
 
     const adjustedPage = Math.min(Math.max(page, 1), totalPages);
     const adjustedData = adjustedPage !== page 
-        ? await fetchTicketsPagination(adjustedPage, sort, ITEMS_PER_PAGE)
+        ? await fetchTicketsPagination(adjustedPage, sort, filter, ITEMS_PER_PAGE)
         : data;
 
     const canNextPage = adjustedPage < totalPages;
@@ -36,6 +41,7 @@ export default async function TicketsTable({ searchParams }: { searchParams?: Se
                 totalPages={totalPages}
                 pageNumber={adjustedPage}
                 sort={sort}
+                filter={filter}
             />
         </div>
     );
