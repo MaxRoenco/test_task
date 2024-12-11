@@ -1,4 +1,3 @@
-import Message from "./types/Message";
 import User from "./types/User";
 
 export async function fetcher(url: string, options = {}) {
@@ -170,7 +169,7 @@ export async function fetchMessages(id : number) {
     }
 
     const data = await response.json();
-    if(data.data.length < 1) console.error("No ticket with ID = " + id);
+    if(data.data.length < 1) console.error(`No ticket with ID = ${id}`);
     return data.data[0].messages;
   } catch (err) {
     if (err instanceof Error) {

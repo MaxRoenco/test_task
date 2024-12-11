@@ -37,7 +37,7 @@ const ChatPage = () => {
     <div className='h-screen w-full flex justify-center items-center flex-initial overflow-hidden'>
       <Card className='w-8/12 h-[95%] my-3 p-3'>
         {ticketInfo && <CardHeader>
-          <CardTitle className='my-2'>#{ticketInfo.subject}</CardTitle>
+          <CardTitle className='my-2'>{ticketInfo.subject}</CardTitle>
 
           <Dialog>
             <DialogTrigger asChild>
