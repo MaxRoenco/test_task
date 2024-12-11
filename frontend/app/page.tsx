@@ -1,21 +1,23 @@
-import React from "react";
-import { Button } from "../components/ui/button";
-import Link from "next/link";
+'use client'
+import { Button } from '../components/ui/button'
+import Link from 'next/link'
+import MainPageCard from "@/components/MainPageCard";
 
 const Page = () => {
   return (
-    <div className="w-full h-screen flex justify-center items-center flex-col gap-4">
-      <h1 className="text-2xl">You're a...</h1>
-      <div>
+    <div className="flex flex-col items-center justify-center h-screen">
+      {/* <h1 className="mb-4">You're a...</h1> */}
+      {/* <Link href="/tickets">
+        <Button size="lg" className="mb-2">
+          Developer
+        </Button>
+      </Link>
+      <Link href="/dashboard">
         <Button size="lg">
           <Link className="w-full h-full flex justify-center items-center" href="/tickets">Developer</Link>
         </Button>
-      </div>
-      <div>
-        <Button size="lg">
-          <Link className="w-full h-full flex justify-center items-center" href="/dashboard">User</Link>
-        </Button>
-      </div>
+      </Link> */}
+      <MainPageCard/>
     </div>
   );
 };

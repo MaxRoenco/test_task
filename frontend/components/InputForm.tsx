@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Types and API
 import { BugType } from "@/lib/types/Ticket";
-import { uploadImage, pushUser, pushBugReport, pushMessage } from "@/lib/api";
+import { uploadImage, checkPushUser, pushBugReport, pushMessage, pushUser, getUser } from "@/lib/api";
 
 // Form Configuration
 const FORM_CONFIG = {
@@ -149,18 +149,25 @@ export default function BugReportForm() {
       ).then(ids => ids.filter((id): id is number => id !== null));
 
       // Get or create user
-      const USER_NAME = "Max";
-      const userId = await pushUser(USER_NAME);
+      const USER_NAME = localStorage.getItem("userName");
+      console.log(USER_NAME);
+      if (USER_NAME) {
+        const userId = await checkPushUser(USER_NAME);
+        console.log(`User ID: ${userId}`);
+        const ticketId = await pushBugReport({
+          ...data,
+          images: uploadedImageIds
+        }, userId, files);
+  
+        console.log("THIS IS THE RESULT LMAOAOAO");
+  
+        await pushMessage(ticketId, data.text, {id: userId, name: USER_NAME});
+      } else {
+        console.error("User name not found in localStorage.");
+      }
 
       // Submit bug report
-      const ticketId = await pushBugReport({
-        ...data,
-        images: uploadedImageIds
-      }, userId, files);
 
-      console.log("THIS IS THE RESULT LMAOAOAO");
-
-      await pushMessage(ticketId, data.text, {id: userId, name: USER_NAME});
 
       // Reset form state
       form.reset();
