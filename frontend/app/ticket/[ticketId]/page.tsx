@@ -23,7 +23,6 @@ const ChatPage = () => {
   const params = useParams<{ ticketId: string }>()
 
   const [ticketInfo, setTicketInfo] = useState<Ticket | null>(null);
-
   const fetchTicketInfo = useCallback(async () => {
     const data = await fetchTicket(Number(params.ticketId));
     setTicketInfo(data);
@@ -43,7 +42,7 @@ const ChatPage = () => {
             <DialogTrigger asChild>
               <Button>Show Details</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-xl">
               <DialogHeader>
                 <DialogTitle>{ticketInfo.subject}</DialogTitle>
                 <DialogDescription className='my-5'>
@@ -58,9 +57,30 @@ const ChatPage = () => {
                   {`${toDMY(ticketInfo.createdAt)} ${toAMPM(ticketInfo.createdAt)}`}
                 </DialogDescription>
               </DialogHeader>
-              {(ticketInfo && ticketInfo.hasOwnProperty("images")) ? ticketInfo.images.map((e, idx) => {
-                return <Image key={idx} width={100} height={100} alt="bug report image" src={e.url} />
-              }) : ""}
+              
+              {(ticketInfo && ticketInfo.images && ticketInfo.images.length > 0) ? (
+                <Carousel className="w-full max-w-md mx-auto">
+                  <CarouselContent>
+                    {ticketInfo.images.map((e, idx) => (
+                      <CarouselItem key={idx} className="flex justify-center items-center">
+                        <div className="p-1">
+                          <Image 
+                            width={400} 
+                            height={300} 
+                            alt={`bug report image ${idx + 1}`} 
+                            src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${e.url}`}
+                            className="max-h-[300px] object-contain"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              ) : (
+                <p className="text-center text-muted-foreground">No images available</p>
+              )}
             </DialogContent>
           </Dialog>
 

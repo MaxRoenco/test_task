@@ -142,7 +142,7 @@ export async function pushBugReport(filteredData: any, userId : any, files: any)
 
 export async function fetchTicket(id : number) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports/?filters[id][$eq]=${id}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/bug-reports/?filters[id][$eq]=${id}&populate=images`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

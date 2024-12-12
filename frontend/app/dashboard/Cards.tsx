@@ -39,7 +39,7 @@ export default function Cards() {
 
     return (
         <>
-            {bugReports.map((e, idx) => (
+            {[...bugReports].reverse().map((e, idx) => (
                 <Link className='overflow-hidden w-[49%]' key={e.documentId} href={`/ticket/${e.id}`}>
                     <Card className="overflow-hidden w-full">
                         <CardContent className="p-0 h-40 flex justify-center items-center">
