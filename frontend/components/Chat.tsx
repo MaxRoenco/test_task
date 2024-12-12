@@ -15,11 +15,12 @@ import Message from '@/lib/types/Message';
 import User from '@/lib/types/User';
 import { toAMPM } from '@/lib/tools/dates';
 
-const ChatComponent = ({ ticketId, user } : { ticketId: number, user: User }) => {
+const ChatComponent = ({ ticketId } : { ticketId: number }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
     const cardRef : any = useRef(null);
+    const user : User = {id: Number(localStorage.getItem("userID") || -1), name: localStorage.getItem("userName") || "Unknown"};
 
     useEffect(() => {
         const socket = new WebSocket(String(process.env.NEXT_PUBLIC_WEBSOCKET_URL));
