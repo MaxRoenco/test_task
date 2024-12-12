@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription }
 import { getTicketsByUserID } from '@/lib/api'
 import { Badge } from "@/components/ui/badge"
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import { toAMPM, toDMY } from '@/lib/tools/dates'
 import { useEffect, useState, useContext } from 'react'
 import Ticket from '@/lib/types/Ticket'
 import { triggerContext } from './page'
+import Image from 'next/image'
 
 export default function Cards() {
     const { trigger, setTrigger } = useContext(triggerContext)!;
@@ -42,14 +42,16 @@ export default function Cards() {
             {bugReports.map((e, idx) => (
                 <Link className='overflow-hidden w-[49%]' key={e.documentId} href={`/ticket/${e.id}`}>
                     <Card className="overflow-hidden w-full">
-                        <CardContent className="p-0 h-40">
-                            <img
-                                className={cn("w-full h-full object-cover object-center")}
-                                src={e.hasOwnProperty("images") && e.images && e.images.length 
-                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}` 
+                        <CardContent className="p-0 h-40 flex justify-center items-center">
+                            <div className="relative size-20 w-full h-full">
+                                <Image src={e.hasOwnProperty("images") && e.images && e.images.length
+                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}`
                                     : `https://picsum.photos/seed/${idx + 100}/800`}
-                                alt="Card image"
-                            />
+                                    alt="Card image"
+                                    fill={true}
+                                    className="object-cover"
+                                />
+                            </div>
                         </CardContent>
                         <CardHeader>
                             <CardTitle>{e.subject}</CardTitle>
