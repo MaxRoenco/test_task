@@ -65,7 +65,7 @@ const ChatPage = () => {
           </Dialog>
 
         </CardHeader>}
-        {ticketInfo && <ChatComponent ticketId={ticketInfo.id} user={{ id: 1, name: "user" }} />}
+        {ticketInfo && <ChatComponent ticketId={ticketInfo.id} />}
       </Card>
     </div>
   );
