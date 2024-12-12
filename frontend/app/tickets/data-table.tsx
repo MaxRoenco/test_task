@@ -105,12 +105,13 @@ export function DataTable<TData, TValue>({
 
         if (debouncedFilter) {
             params.set('filter', debouncedFilter);
+            params.set('page', "1");
         } else {
             params.delete('filter');
         }
 
         router.replace(`/tickets?${params.toString()}`, { scroll: false });
-    }, [debouncedFilter, router, searchParams]);
+    }, [debouncedFilter]);
 
     const table = useReactTable({
         data,
