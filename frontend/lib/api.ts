@@ -269,11 +269,13 @@ export async function checkPushUser(name : string) {
 
 export async function getTicketsByUserID(userID:  string){
   try{
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users?filters[id][$eq]=${userID}&populate=*`);
+    console.log("HERE USER:"+ userID)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users?filters[id][$eq]=${userID}&populate[bug_reports][populate][0]=images`);
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
       const result = await response.json();
+      console.log(result.data[0])
       return result.data[0].bug_reports;
   } catch(error: any){
     console.log(`Error: ${error}`);

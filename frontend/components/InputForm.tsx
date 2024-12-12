@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useContext } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 // Toast Import
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { triggerContext } from '@/app/dashboard/page';
 
 // UI Components
 import {
@@ -35,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 // Types and API
 import { BugType } from "@/lib/types/Ticket";
 import { uploadImage, checkPushUser, pushBugReport, pushMessage, pushUser, getUser } from "@/lib/api";
+import Ticket from '@/lib/types/Ticket';
 
 // Form Configuration
 const FORM_CONFIG = {
@@ -99,10 +101,10 @@ const ImagePreviewGrid: React.FC<{
 
 // Main Form Component
 export default function BugReportForm() {
+  const { trigger, setTrigger } = useContext(triggerContext)!;
   const [files, setFiles] = useState<File[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -174,7 +176,8 @@ export default function BugReportForm() {
       form.reset();
       setFiles([]);
       setIsOpen(false);
-      router.refresh();
+      setTrigger(!trigger)
+      // window.location.reload();
 
       // Show success toast
       toast({
