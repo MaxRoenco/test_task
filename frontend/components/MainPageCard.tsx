@@ -13,22 +13,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { checkPushUser } from "@/lib/api";
+import Link from "next/link";
 
 const MainPageCard: React.FC = () => {
 
   const [name, setName] = useState<string>("");
   const router = useRouter();
 
-  const onClick = () => {
+  const onClickUser = async () => {
     if (name.trim()) {
       setName(name);
       localStorage.setItem("userName", name);
+      const userID = await checkPushUser(name);
+      localStorage.setItem("userID", userID);
       setName("");
       router.push('/dashboard');
     } else {
       alert("Please enter a valid name.");
     }
   };
+
+  const onClickAdmin = async () => {
+    if (name.trim()) {
+      setName(name);
+      localStorage.setItem("userName", name);
+      const userID = await checkPushUser(name);
+      localStorage.setItem("userID", userID);
+      setName("");
+      router.push('/tickets');
+    } else {
+      alert("Please enter a valid name.");
+    }
+  };
+
 
   return (
     <Card className="w-[350px]">
@@ -50,7 +68,8 @@ const MainPageCard: React.FC = () => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button onClick={onClick}>Join</Button>
+        <Button onClick={onClickUser}>User</Button>
+        <Button onClick={onClickAdmin}>Admin</Button>
       </CardFooter>
     </Card>
   );

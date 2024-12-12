@@ -211,7 +211,7 @@ export async function pushMessage(ticketId: number, text : string, user : User) 
 
 export async function getUser(name : string){
   try{
-    const response = await fetch(`http://localhost:1337/api/ticket-users?filters[name][$eq]=${name}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users?filters[name][$eq]=${name}`);
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
@@ -231,7 +231,7 @@ export async function pushUser(name : string) {
           name: name,
         },
       };
-      const response = await fetch(`http://localhost:1337/api/ticket-users`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

@@ -150,6 +150,7 @@ export default function BugReportForm() {
 
       // Get or create user
       const USER_NAME = localStorage.getItem("userName");
+      // const USER_ID = localStorage.getItem("userID");
       console.log(USER_NAME);
       if (USER_NAME) {
         const userId = await checkPushUser(USER_NAME);
