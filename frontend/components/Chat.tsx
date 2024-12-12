@@ -15,12 +15,12 @@ import Message from '@/lib/types/Message';
 import User from '@/lib/types/User';
 import { toAMPM } from '@/lib/tools/dates';
 
-const ChatComponent = ({ ticketId } : { ticketId: number }) => {
+const ChatComponent = ({ ticketId }: { ticketId: number }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
-    const cardRef : any = useRef(null);
-    const user : User = {id: Number(localStorage.getItem("userID") || -1), name: localStorage.getItem("userName") || "Unknown"};
+    const cardRef: any = useRef(null);
+    const user: User = { id: Number(localStorage.getItem("userID") || -1), name: localStorage.getItem("userName") || "Unknown" };
 
     useEffect(() => {
         const socket = new WebSocket(String(process.env.NEXT_PUBLIC_WEBSOCKET_URL));
@@ -34,8 +34,8 @@ const ChatComponent = ({ ticketId } : { ticketId: number }) => {
             const data = JSON.parse(event.data);
             if (data.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, data]);
-            } else if(data.type === 'messages') {
-                console.log("MESSAGES:",data.messages);
+            } else if (data.type === 'messages') {
+                console.log("MESSAGES:", data.messages);
                 setMessages((prevMessages) => [...prevMessages, ...data.messages]);
             }
         };
@@ -60,17 +60,17 @@ const ChatComponent = ({ ticketId } : { ticketId: number }) => {
 
     useEffect(() => {
         if (messages.length > 0) {
-          cardRef?.current?.scrollIntoView({ behavior: "smooth" });
+            cardRef?.current?.scrollIntoView({ behavior: "smooth" });
         }
-      }, [messages.length]);
+    }, [messages.length]);
 
     return (
         <>
             <ScrollArea className='h-4/6' id='scroller'>
                 <ChatMessageList>
                     {messages.map((msg, index) => (
-                        <ChatBubble 
-                            ref={index + 1 === messages.length ? cardRef : null} 
+                        <ChatBubble
+                            ref={index + 1 === messages.length ? cardRef : null}
                             key={index} variant={msg.userId === user.id ? "sent" : "received"}
                         >
                             <ChatBubbleAvatar fallback='US' />
@@ -89,6 +89,12 @@ const ChatComponent = ({ ticketId } : { ticketId: number }) => {
                     className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault(); // Prevent adding a newline
+                            handleSendMessage();
+                        }
+                    }}
                 />
                 <Button
                     onClick={handleSendMessage}
