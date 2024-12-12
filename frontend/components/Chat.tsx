@@ -91,7 +91,7 @@ const ChatComponent = ({ ticketId }: { ticketId: number }) => {
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault(); // Prevent adding a newline
+                            e.preventDefault();
                             handleSendMessage();
                         }
                     }}

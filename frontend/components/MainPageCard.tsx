@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { checkPushUser } from "@/lib/api";
-import Link from "next/link";
 
 const MainPageCard: React.FC = () => {
 

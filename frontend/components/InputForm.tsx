@@ -36,7 +36,6 @@ import { Textarea } from "@/components/ui/textarea";
 // Types and API
 import { BugType } from "@/lib/types/Ticket";
 import { uploadImage, checkPushUser, pushBugReport, pushMessage, pushUser, getUser } from "@/lib/api";
-import Ticket from '@/lib/types/Ticket';
 
 // Form Configuration
 const FORM_CONFIG = {
@@ -161,10 +160,10 @@ export default function BugReportForm() {
           ...data,
           images: uploadedImageIds
         }, userId, files);
-  
+
         console.log("THIS IS THE RESULT LMAOAOAO");
-  
-        await pushMessage(ticketId, data.text, {id: userId, name: USER_NAME});
+
+        await pushMessage(ticketId, data.text, { id: userId, name: USER_NAME });
       } else {
         console.error("User name not found in localStorage.");
       }
@@ -296,10 +295,16 @@ export default function BugReportForm() {
                     <FormItem>
                       <FormControl>
                         <Input
+                          className="text-sm text-secondary-foreground
+                                    file:rounded-md
+                                    file:mr-5 file:py-1 file:px-3
+                                    file:text-xs file:font-medium
+                                    hover:file:bg-secondary hover:file:text-secondary-foreground
+                                    file:cursor-pointer file:bg-primary
+                                    file:text-primary-foreground"
                           type="file"
                           accept="image/*"
                           onChange={handleFileChange}
-                          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                           id="file_input"
                           alt='image upload input field'
                         />

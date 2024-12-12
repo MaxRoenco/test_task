@@ -244,7 +244,7 @@ export function DataTable<TData, TValue>({
                 >
                     Previous
                 </Button>
-                <p className="mr-1 text-gray-500">{`Page ${pageNumber} out of ${totalPages}`}</p>
+                <p className="mr-1 text-muted-foreground">{`Page ${pageNumber} out of ${totalPages}`}</p>
                 <Button
                     variant="outline"
                     size="sm"
