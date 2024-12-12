@@ -218,7 +218,7 @@ export async function getUser(name : string){
     const result = await response.json();
     console.log(result?.data[0]?.id);
     return result?.data?.length ? result?.data[0]?.id : null;
-  } catch(error) {
+  } catch(error: any) {
     console.log(`Error: ${error}`);
     return null;
   }
@@ -244,7 +244,7 @@ export async function pushUser(name : string) {
       const result = await response.json();
       console.log(result);
       return result?.data ? result.data.id : null;
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Error: ${error}`);
     return null
   }
@@ -261,8 +261,21 @@ export async function checkPushUser(name : string) {
       console.log(`New userID: ${newUser}`);
       return newUser || null;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Error: ${error}`);
     return null;
+  }
+}
+
+export async function getTicketsByUserID(userID:  string){
+  try{
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL_API}/ticket-users?filters[id][$eq]=${userID}&populate=*`);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const result = await response.json();
+      return result.data[0].bug_reports;
+  } catch(error: any){
+    console.log(`Error: ${error}`);
   }
 }
