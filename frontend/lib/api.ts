@@ -259,7 +259,7 @@ export async function checkPushUser(name : string) {
     } else {
       const newUser = await pushUser(name);
       console.log(`New userID: ${newUser}`);
-      return newUser?.id || null;
+      return newUser || null;
     }
   } catch (error) {
     console.log(`Error: ${error}`);
