@@ -16,7 +16,7 @@ import User from '@/lib/types/User';
 import { toAMPM } from '@/lib/tools/dates';
 
 const ChatComponent = ({ ticketId }: { ticketId: number }) => {
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
     const cardRef: any = useRef(null);
