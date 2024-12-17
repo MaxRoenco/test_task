@@ -19,7 +19,6 @@ export default function Cards() {
             try {
                 const tickets = await getTicketsByUserID(localStorage.getItem("userID") || "-1");
                 setBugReports(tickets || []);
-                console.log(`Tickets: ${tickets}`);
             } catch (error) {
                 console.error("Failed to fetch tickets:", error);
             } finally {
@@ -40,20 +39,28 @@ export default function Cards() {
     return (
         <>
             {[...bugReports].reverse().map((e, idx) => (
-                <Link className='overflow-hidden w-[49%]' key={e.documentId} href={`/ticket/${e.id}`}>
-                    <Card className="overflow-hidden w-full">
-                        <CardContent className="p-0 h-40 flex justify-center items-center">
+                <Link 
+                    className='w-[49%] flex' 
+                    key={e.documentId} 
+                    href={`/ticket/${e.id}`}
+                >
+                    <Card className="overflow-hidden w-full flex flex-col">
+                        <CardContent className="p-0 h-40 flex justify-center items-stretch">
                             <div className="relative size-20 w-full h-full">
-                                <Image src={e.hasOwnProperty("images") && e.images && e.images.length
-                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}`
-                                    : `https://picsum.photos/seed/${idx + 100}/800`}
+                                <Image 
+                                    src={e.hasOwnProperty("images") && e.images && e.images.length
+                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${e.images[0].url}`
+                                        : `https://picsum.photos/seed/${idx + 100}/800`}
                                     alt="Card image"
-                                    fill={true}
+                                    fill
                                     className="object-cover"
+                                    quality={1}
+                                    priority={true}
+                                    sizes='100%'
                                 />
                             </div>
                         </CardContent>
-                        <CardHeader>
+                        <CardHeader className="flex-grow">
                             <CardTitle>{e.subject}</CardTitle>
                             <CardDescription>{e.text}</CardDescription>
                             <CardDescription>

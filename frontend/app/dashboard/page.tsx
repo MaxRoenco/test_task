@@ -20,11 +20,11 @@ export default function BugReportsPage() {
     return (
       <triggerContext.Provider value={{ trigger, setTrigger }}>
         <div className="w-4/6 flex flex-col mx-auto my-10">
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-6">
             <h1 className="text-4xl font-bold">My Tickets:</h1>
             <InputForm />
           </div>
-          <div className="flex gap-2 flex-wrap w-full justify-between mt-10">
+          <div className="flex justify-between gap-2 flex-wrap w-full">
             <Suspense fallback={<p>Loading...</p>}>
               <Cards />
             </Suspense>

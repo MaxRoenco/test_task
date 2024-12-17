@@ -4,21 +4,21 @@ import Image from "./Image";
 
 export enum BugType {
     UI = 'UI',
-    Backend = 'Backend',
-    Performance = 'Performance',
-    Security = 'Security',
+    BACKEND = 'Backend',
+    PERFORMANCE = 'Performance',
+    SECURITY = 'Security',
 }
 
 export enum StatusBug {
-    Open = 'Open',
-    InProgress = 'In Progress',
-    Closed = 'Closed',
+    OPEN = 'Open',
+    IN_PROGRESS = 'In Progress',
+    CLOSED = 'Closed',
 }
 
 export enum Priority {
-    Low = 'Low',
-    Medium = 'Medium',
-    High = 'High',
+    LOW = 'Low',
+    MEDIUM = 'Medium',
+    HIGH = 'High',
 }
 
 export default interface Ticket {

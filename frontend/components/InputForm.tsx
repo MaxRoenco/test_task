@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Types and API
 import { BugType } from "@/lib/types/Ticket";
-import { uploadImage, checkPushUser, pushBugReport, pushMessage, pushUser, getUser } from "@/lib/api";
+import { uploadImage, checkPushUser, pushBugReport, pushMessage } from "@/lib/api";
 
 // Form Configuration
 const FORM_CONFIG = {
