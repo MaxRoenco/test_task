@@ -1,6 +1,6 @@
 "use client"
 import ChatComponent from '../../../components/Chat';
-import { Card, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
+import { Card, CardHeader, CardTitle } from '../../../components/ui/card';
 import { useState, useEffect, useCallback } from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
