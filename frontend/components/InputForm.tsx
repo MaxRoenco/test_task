@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useContext } from 'react';
+import React, { useState, useCallback, useMemo, useContext, useRef } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
@@ -101,9 +101,9 @@ const ImagePreviewGrid: React.FC<{
 export default function BugReportForm() {
   const { trigger, setTrigger } = useContext(triggerContext)!;
   const [files, setFiles] = useState<File[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
@@ -150,7 +150,6 @@ export default function BugReportForm() {
 
       // Get or create user
       const USER_NAME = localStorage.getItem("userName");
-      // const USER_ID = localStorage.getItem("userID");
       console.log(USER_NAME);
       if (USER_NAME) {
         const userId = await checkPushUser(USER_NAME);
@@ -167,15 +166,13 @@ export default function BugReportForm() {
         console.error("User name not found in localStorage.");
       }
 
-      // Submit bug report
-
-
       // Reset form state
       form.reset();
       setFiles([]);
-      setIsOpen(false);
-      setTrigger(!trigger)
-      // window.location.reload();
+      setTrigger(!trigger);
+
+      // Programmatically close the dialog
+      closeButtonRef.current?.click();
 
       // Show success toast
       toast({
@@ -207,17 +204,15 @@ export default function BugReportForm() {
     []);
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root>
       <Dialog.Trigger asChild>
         <Button>Add Ticket</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsOpen(false)}
-        />
+        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <Dialog.Title className="sr-only">Add a Ticket</Dialog.Title>
           <div>
@@ -329,6 +324,7 @@ export default function BugReportForm() {
           </Form>
           <Dialog.Close asChild>
             <Button
+              ref={closeButtonRef}
               type="button"
               variant="ghost"
               className="absolute top-4 right-4"

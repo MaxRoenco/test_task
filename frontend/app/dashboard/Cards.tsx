@@ -54,7 +54,7 @@ export default function Cards() {
                                     alt="Card image"
                                     fill
                                     className="object-cover"
-                                    quality={1}
+                                    quality={50}
                                     priority={true}
                                     sizes='100%'
                                 />
