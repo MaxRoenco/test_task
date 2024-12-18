@@ -293,7 +293,7 @@ export default function BugReportForm() {
                                     file:cursor-pointer file:bg-primary
                                     file:text-primary-foreground"
                           type="file"
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/gif,image/svg,image/tiff,image/ico,image/dvu"
                           onChange={handleFileChange}
                           id="file_input"
                           alt='image upload input field'
