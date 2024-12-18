@@ -27,7 +27,6 @@ const ChatComponent = ({ ticketId }: { ticketId: number }) => {
 
         socket.onopen = () => {
             socket.send(JSON.stringify({ type: 'init', user, ticketId }));
-            console.log("Connected to socket");
         };
 
         socket.onmessage = (event) => {
@@ -35,7 +34,6 @@ const ChatComponent = ({ ticketId }: { ticketId: number }) => {
             if (data.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, data]);
             } else if (data.type === 'messages') {
-                console.log("MESSAGES:", data.messages);
                 setMessages((prevMessages) => [...prevMessages, ...data.messages]);
             }
         };

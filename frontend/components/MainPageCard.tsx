@@ -14,11 +14,13 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { checkPushUser } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const MainPageCard: React.FC = () => {
 
   const [name, setName] = useState<string>("");
   const router = useRouter();
+  const { toast } = useToast();
 
   const onClickUser = async () => {
     if (name.trim()) {
@@ -29,7 +31,11 @@ const MainPageCard: React.FC = () => {
       setName("");
       router.push('/dashboard');
     } else {
-      alert("Please enter a valid name.");
+      toast({
+        variant: "destructive",
+        title: "Invalid username",
+        description: "Please enter a valid username.",
+      });
     }
   };
 

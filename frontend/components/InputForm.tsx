@@ -150,16 +150,12 @@ export default function BugReportForm() {
 
       // Get or create user
       const USER_NAME = localStorage.getItem("userName");
-      console.log(USER_NAME);
       if (USER_NAME) {
         const userId = await checkPushUser(USER_NAME);
-        console.log(`User ID: ${userId}`);
         const ticketId = await pushBugReport({
           ...data,
           images: uploadedImageIds
-        }, userId, files);
-
-        console.log("THIS IS THE RESULT LMAOAOAO");
+        }, userId);
 
         await pushMessage(ticketId, data.text, { id: userId, name: USER_NAME });
       } else {
